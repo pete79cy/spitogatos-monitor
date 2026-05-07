@@ -33,3 +33,7 @@ Thumbs.db
 .vscode/
 .idea/
 *.sublime-*
+
+# Debug / local
+article_sample.txt
+.claude/
