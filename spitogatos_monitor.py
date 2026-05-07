@@ -3,8 +3,10 @@
 Spitogatos.gr Student Apartment Monitor
 Checks for new student apartments in Heraklion (Crete) and sends notifications.
 
-Uses Playwright (headed Chromium + stealth) to bypass the bot-protection page.
-On Linux/CI run via xvfb-run so a virtual display is available.
+Two fetch paths:
+  1. ScrapingBee API (used when SCRAPINGBEE_API_KEY is set) — for VPS/datacenter
+     IPs that CloudFront blocks. Routes through Greek residential proxies.
+  2. Playwright headed Chromium + stealth — for local dev from a residential IP.
 """
 
 import json
@@ -14,14 +16,16 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
-from playwright_stealth import Stealth
+import requests
+from bs4 import BeautifulSoup
 
 URL = "https://www.spitogatos.gr/en/to_rent-homes/heraclion-cretes/student_houses/last_update_24h/first_publish_24h"
 HOME_URL = "https://www.spitogatos.gr/"
 DATA_DIR = Path(os.getenv("DATA_DIR", str(Path(__file__).parent)))
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 DATA_FILE = DATA_DIR / "seen_apartments.json"
+
+SCRAPINGBEE_API_KEY = os.getenv("SCRAPINGBEE_API_KEY", "")
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
@@ -50,17 +54,14 @@ def save_seen_apartments(data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
-def _save_debug(page, html: str, tag: str) -> None:
-    """Save HTML + screenshot to DATA_DIR for remote diagnosis."""
+def _save_debug(html: str, tag: str) -> None:
     try:
         ts = datetime.now().strftime("%Y%m%d-%H%M%S")
-        html_path = DATA_DIR / f"debug-{tag}-{ts}.html"
-        png_path = DATA_DIR / f"debug-{tag}-{ts}.png"
-        html_path.write_text(html, encoding="utf-8")
-        page.screenshot(path=str(png_path), full_page=True)
-        print(f"🐞 Debug saved: {html_path.name}, {png_path.name}")
+        path = DATA_DIR / f"debug-{tag}-{ts}.html"
+        path.write_text(html, encoding="utf-8")
+        print(f"🐞 Debug saved: {path.name}")
     except Exception as e:
-        print(f"⚠️  Could not save debug artifacts: {e}")
+        print(f"⚠️  Could not save debug: {e}")
 
 
 def _extract_price_from_alt(alt: str) -> str:
@@ -70,10 +71,33 @@ def _extract_price_from_alt(alt: str) -> str:
     return m.group(0).strip() if m else ""
 
 
-def fetch_apartments():
-    """Fetch apartments from Spitogatos using Playwright."""
-    apartments = []
+def fetch_html_via_scrapingbee() -> str:
+    """Fetch the search page through ScrapingBee with a Greek residential proxy."""
+    print("🐝 Fetching via ScrapingBee (premium proxy, GR)...")
+    r = requests.get(
+        "https://app.scrapingbee.com/api/v1/",
+        params={
+            "api_key": SCRAPINGBEE_API_KEY,
+            "url": URL,
+            "render_js": "true",
+            "premium_proxy": "true",
+            "country_code": "gr",
+            "wait": "5000",
+            "wait_for": "article",
+        },
+        timeout=120,
+    )
+    if r.status_code != 200:
+        raise RuntimeError(f"ScrapingBee returned {r.status_code}: {r.text[:300]}")
+    return r.text
 
+
+def fetch_html_via_playwright() -> str:
+    """Local-dev path: headed Chromium with stealth + homepage warm-up."""
+    from playwright.sync_api import sync_playwright
+    from playwright_stealth import Stealth
+
+    print("🎭 Fetching via Playwright (local, residential IP required)...")
     with sync_playwright() as p:
         browser = p.chromium.launch(
             headless=False,
@@ -86,98 +110,97 @@ def fetch_apartments():
         )
         Stealth().apply_stealth_sync(ctx)
         page = ctx.new_page()
-
         try:
-            # Warm-up homepage so the bot-protection sets cookies
             page.goto(HOME_URL, wait_until="domcontentloaded", timeout=60000)
             page.wait_for_timeout(3000)
-
             page.goto(URL, wait_until="domcontentloaded", timeout=60000)
-
-            # Wait for actual listings to appear (Vue app hydrates after DOM ready)
             try:
                 page.wait_for_selector("article", timeout=20000)
             except Exception:
                 pass
             page.wait_for_timeout(3000)
-
-            html = page.content()
-            title = page.title()
-            print(f"📄 Page title: {title}")
-
-            if "Pardon Our" in html or "Pardon Our" in title:
-                print("⚠️  Hit bot-protection page. Aborting.")
-                _save_debug(page, html, "blocked")
-                return apartments
-
-            articles = page.locator("article")
-            count = articles.count()
-            print(f"📋 Page rendered, {count} article elements found")
-
-            if count == 0:
-                # Save diagnostics so we can see why
-                _save_debug(page, html, "no_articles")
-
-            for i in range(count):
-                art = articles.nth(i)
-
-                link = ""
-                a = art.locator("a.tile__link").first
-                if a.count() > 0:
-                    href = a.get_attribute("href") or ""
-                    link = href if href.startswith("http") else f"https://www.spitogatos.gr{href}"
-
-                m = re.search(r"/property/(\d+)", link)
-                apt_id = m.group(1) if m else link
-
-                def text_of(selector):
-                    loc = art.locator(selector).first
-                    return loc.inner_text().strip() if loc.count() > 0 else ""
-
-                title = text_of(".tile__title")
-                location = text_of(".tile__location")
-
-                # Price: try a price element, fall back to image alt
-                price = ""
-                for sel in [".tile__price", "[class*=price]"]:
-                    price = text_of(sel)
-                    if price:
-                        break
-                if not price:
-                    img = art.locator("img").first
-                    alt = img.get_attribute("alt") if img.count() > 0 else ""
-                    price = _extract_price_from_alt(alt or "")
-
-                # Size: parse from title ("Studio, 40m²") or use whole title
-                size = ""
-                sm = re.search(r"(\d+\s*m²)", title)
-                if sm:
-                    size = sm.group(1)
-
-                if apt_id:
-                    apartments.append({
-                        "id": apt_id,
-                        "title": title or "No title",
-                        "price": price,
-                        "location": location,
-                        "size": size,
-                        "link": link,
-                        "found_at": datetime.now().isoformat(),
-                    })
+            return page.content()
         finally:
             browser.close()
 
+
+def parse_apartments(html: str) -> list:
+    """Parse listing data out of the search-results HTML."""
+    soup = BeautifulSoup(html, "html.parser")
+    apartments = []
+
+    for art in soup.select("article"):
+        a = art.select_one("a.tile__link") or art.select_one("a[href*='/property/']")
+        if not a:
+            continue
+
+        href = a.get("href", "")
+        link = href if href.startswith("http") else f"https://www.spitogatos.gr{href}"
+        m = re.search(r"/property/(\d+)", link)
+        apt_id = m.group(1) if m else link
+
+        def text_of(sel):
+            el = art.select_one(sel)
+            return el.get_text(strip=True) if el else ""
+
+        title = text_of(".tile__title")
+        location = text_of(".tile__location")
+
+        price = ""
+        for sel in [".tile__price", "[class*=price]"]:
+            price = text_of(sel)
+            if price:
+                break
+        if not price:
+            img = art.select_one("img")
+            price = _extract_price_from_alt(img.get("alt", "") if img else "")
+
+        size = ""
+        sm = re.search(r"(\d+\s*m²)", title)
+        if sm:
+            size = sm.group(1)
+
+        apartments.append({
+            "id": apt_id,
+            "title": title or "No title",
+            "price": price,
+            "location": location,
+            "size": size,
+            "link": link,
+            "found_at": datetime.now().isoformat(),
+        })
+
+    return apartments
+
+
+def fetch_apartments() -> list:
+    try:
+        if SCRAPINGBEE_API_KEY:
+            html = fetch_html_via_scrapingbee()
+        else:
+            html = fetch_html_via_playwright()
+    except Exception as e:
+        print(f"❌ Fetch error: {e}")
+        return []
+
+    if "Pardon Our" in html or "ERROR: The request could not be satisfied" in html:
+        print("⚠️  Got bot-protection / CloudFront page.")
+        _save_debug(html, "blocked")
+        return []
+
+    apartments = parse_apartments(html)
+    print(f"📋 Parsed {len(apartments)} listings")
+    if not apartments:
+        _save_debug(html, "no_articles")
     return apartments
 
 
 def send_telegram_notification(apartments):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
         return
-    import requests
 
     message = "🏠 *Νέα Φοιτητικά Διαμερίσματα στο Ηράκλειο*\n\n"
     message += f"Βρέθηκαν {len(apartments)} νέες αγγελίες:\n\n"
-
     for apt in apartments[:10]:
         message += f"🔹 *{apt['title']}*\n"
         if apt["price"]:
@@ -189,19 +212,20 @@ def send_telegram_notification(apartments):
         if apt["link"]:
             message += f"🔗 [Δες Αγγελία]({apt['link']})\n"
         message += "\n"
-
     if len(apartments) > 10:
         message += f"\n... και {len(apartments) - 10} ακόμα αγγελίες"
 
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    data = {
-        "chat_id": TELEGRAM_CHAT_ID,
-        "text": message,
-        "parse_mode": "Markdown",
-        "disable_web_page_preview": True,
-    }
     try:
-        r = requests.post(url, json=data, timeout=30)
+        r = requests.post(
+            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+            json={
+                "chat_id": TELEGRAM_CHAT_ID,
+                "text": message,
+                "parse_mode": "Markdown",
+                "disable_web_page_preview": True,
+            },
+            timeout=30,
+        )
         r.raise_for_status()
         print("✅ Telegram notification sent")
     except Exception as e:
@@ -211,7 +235,6 @@ def send_telegram_notification(apartments):
 def send_email_notification(apartments):
     if not all([EMAIL_TO, SMTP_USER, SMTP_PASSWORD]):
         return
-
     import smtplib
     from email.mime.multipart import MIMEMultipart
     from email.mime.text import MIMEText
@@ -225,7 +248,7 @@ def send_email_notification(apartments):
         ".price{color:#e74c3c;font-size:16px;font-weight:bold}",
         ".link{color:#3498db;text-decoration:none}",
         "</style></head><body>",
-        f"<h2>Νέα Φοιτητικά Διαμερίσματα στο Ηράκλειο</h2>",
+        "<h2>Νέα Φοιτητικά Διαμερίσματα στο Ηράκλειο</h2>",
         f"<p>Βρέθηκαν {len(apartments)} νέες αγγελίες:</p>",
     ]
     for apt in apartments:
@@ -260,7 +283,7 @@ def send_email_notification(apartments):
 
 def main():
     print(f"\n{'='*60}")
-    print(f"🔍 Checking for new student apartments in Heraklion")
+    print("🔍 Checking for new student apartments in Heraklion")
     print(f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"{'='*60}\n")
 
@@ -268,12 +291,9 @@ def main():
     seen_ids = set(data.get("apartments", {}).keys())
 
     apartments = fetch_apartments()
-
     if not apartments:
-        print("⚠️  No apartments found. Could mean: no new listings, site changed, or blocked.")
+        print("⚠️  No apartments found.")
         return
-
-    print(f"📋 Parsed {len(apartments)} listings")
 
     new_apartments = [a for a in apartments if a["id"] not in seen_ids]
     for apt in new_apartments:
@@ -299,7 +319,6 @@ def main():
 
     data["last_check"] = datetime.now().isoformat()
     save_seen_apartments(data)
-
     print(f"\n{'='*60}\n✅ Check complete\n{'='*60}\n")
 
 

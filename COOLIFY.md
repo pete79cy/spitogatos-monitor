@@ -1,78 +1,73 @@
 # Coolify Deployment
 
-Deploy το spitogatos monitor σε δικό σου server μέσω Coolify.
+Deploy το spitogatos monitor σε δικό σου server μέσω Coolify, χρησιμοποιώντας **ScrapingBee** ως residential proxy (αναγκαίο γιατί το spitogatos μπλοκάρει όλες τις datacenter IPs μέσω CloudFront WAF).
 
 ## Πώς δουλεύει
 
 - Το container τρέχει συνέχεια αλλά είναι idle (`sleep infinity`).
 - Coolify **Scheduled Task** εκτελεί το script κάθε μέρα στις 04:00 UTC (~07:00 Ελλάδα).
-- Volume στο `/app/data` διατηρεί το `seen_apartments.json` ανάμεσα σε runs (αλλιώς θα έπαιρνες κάθε μέρα ειδοποιήσεις για όλες τις αγγελίες).
+- Το script κάνει request στο **ScrapingBee API** με Greek residential proxy και παίρνει το rendered HTML.
+- Volume στο `/app/data` διατηρεί το `seen_apartments.json` ανάμεσα σε runs.
 
 ## Setup steps
 
-### 1. Νέα Application στο Coolify
+### 1. ScrapingBee account (δωρεάν)
 
-- `+ New` → `Public Repository` (ή Private αν συνδέσεις GitHub)
+- Φτιάξε account στο [scrapingbee.com](https://www.scrapingbee.com/) — δωρεάν 1.000 credits/μήνα
+- Κάθε run κοστίζει 25 credits (premium proxy + JS rendering) → ~40 runs/μήνα, αρκεί για daily
+- Στο dashboard, αντίγραψε το **API Key**
+
+### 2. Νέα Application στο Coolify
+
+- `+ New` → `Public Repository`
 - Repository: `https://github.com/pete79cy/spitogatos-monitor`
 - Branch: `main`
 - Build Pack: **Dockerfile**
-- Port: άσε κενό ή `0` (δεν εκθέτει port)
+- Port: άσε κενό (δεν εκθέτει port)
 
-### 2. Persistent Storage
+### 3. Persistent Storage
 
-Στο Storage tab:
-- `+ Add` → **Volume**
+Storage tab → `+ Add` → **Volume**
 - Source name: `spitogatos-data`
 - Destination path: `/app/data`
 
-Χωρίς αυτό θα χάνεις το `seen_apartments.json` σε κάθε redeploy.
-
-### 3. Environment Variables
-
-Στο Environment Variables tab πρόσθεσε:
+### 4. Environment Variables
 
 | Key | Value |
 |-----|-------|
-| `TELEGRAM_BOT_TOKEN` | το token από @BotFather |
-| `TELEGRAM_CHAT_ID` | το chat id σου |
+| `SCRAPINGBEE_API_KEY` | API key από το ScrapingBee dashboard |
+| `TELEGRAM_BOT_TOKEN` | token από @BotFather |
+| `TELEGRAM_CHAT_ID` | chat id σου |
 
-(Email vars `EMAIL_TO`, `SMTP_USER`, `SMTP_PASSWORD` αν θες και email — προαιρετικά.)
+### 5. Deploy
 
-### 4. Deploy
+`Deploy` button. Στα logs θα δεις `sleep infinity` — σωστό.
 
-`Deploy` button. Περίμενε να γίνει build & start. Στα logs θα δεις απλώς ότι κάνει `sleep infinity` — αυτό είναι σωστό.
+### 6. Scheduled Task
 
-### 5. Scheduled Task
-
-Στο **Scheduled Tasks** tab της εφαρμογής:
+Στο **Scheduled Tasks** tab:
 - `+ Add Scheduled Task`
 - Name: `daily-check`
-- Command:
-  ```
-  xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' python /app/spitogatos_monitor.py
-  ```
-- Frequency: `0 4 * * *` (καθημερινά στις 04:00 UTC)
+- Command: `python /app/spitogatos_monitor.py`
+- Frequency: `0 4 * * *`
 
-### 6. Manual test
+### 7. Manual test
 
-Πριν περιμένεις 24 ώρες, τεστάρεις άμεσα:
+Στο Terminal της εφαρμογής:
+```bash
+python /app/spitogatos_monitor.py
+```
 
-- Στο Coolify, στην εφαρμογή → `Terminal` (ή `Execute Command`)
-- Τρέξε:
-  ```bash
-  xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' python /app/spitogatos_monitor.py
-  ```
-
-Θα δεις στα logs τις αγγελίες που βρέθηκαν και θα έρθει Telegram (την πρώτη φορά για **όλες** τις τρέχουσες — από εκεί και πέρα μόνο νέες).
-
-## GH Actions vs Coolify
-
-⚠️ Διάλεξε ένα από τα δύο για να μη παίρνεις διπλές ειδοποιήσεις:
-- Αν χρησιμοποιείς Coolify, **disable το GitHub Actions workflow** (Actions tab → `Daily Apartment Monitor` → `...` → `Disable workflow`).
-- Ή απλά διέγραψε το `.github/workflows/daily_monitor.yml`.
+Θα δεις `🐝 Fetching via ScrapingBee...` και θα παρθούν οι αγγελίες.
 
 ## Troubleshooting
 
-- **"Pardon Our Interruption" στα logs** → το xvfb δεν τρέχει σωστά. Έλεγξε ότι το command αρχίζει με `xvfb-run`.
-- **Δεν στέλνει Telegram** → έλεγξε ότι έχεις βάλει σωστά τα env vars στο Coolify (όχι στο GitHub).
-- **Παίρνεις κάθε μέρα ίδιες αγγελίες** → το volume δεν είναι σωστά mounted στο `/app/data`.
+- **`ScrapingBee returned 401`** → λάθος ή λείπει το `SCRAPINGBEE_API_KEY`.
+- **`ScrapingBee returned 402`** → τέλειωσαν τα δωρεάν credits του μήνα (πάνε στο dashboard για πληροφορίες).
+- **`Got bot-protection / CloudFront page`** → δοκίμασε `country_code=eu` αντί για `gr` στον κώδικα, ή γύρισε το `premium_proxy` σε `stealth_proxy`.
+- **Cron δεν τρέχει** → έλεγξε ότι το Scheduled Task είναι enabled και βλέπει το ίδιο container.
+
+## GH Actions vs Coolify
+
+⚠️ Διάλεξε ένα. Αν χρησιμοποιείς Coolify, disable το GitHub Actions workflow:
+[github.com/pete79cy/spitogatos-monitor/actions](https://github.com/pete79cy/spitogatos-monitor/actions) → `Daily Apartment Monitor` → `...` → `Disable workflow`.
