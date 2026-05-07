@@ -19,7 +19,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-URL = "https://www.spitogatos.gr/en/to_rent-homes/heraclion-cretes/student_houses/last_update_24h/first_publish_24h"
+URL = "https://www.spitogatos.gr/enoikiaseis-katoikies/heraclion-cretes/foititika/teleutaia_enimerwsi_24wres/prwti_dimosieusi_24wres"
 HOME_URL = "https://www.spitogatos.gr/"
 DATA_DIR = Path(os.getenv("DATA_DIR", str(Path(__file__).parent)))
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -137,7 +137,7 @@ def parse_apartments(html: str) -> list:
 
         href = a.get("href", "")
         link = href if href.startswith("http") else f"https://www.spitogatos.gr{href}"
-        m = re.search(r"/property/(\d+)", link)
+        m = re.search(r"/(?:property|aggelia)/(\d+)", link)
         apt_id = m.group(1) if m else link
 
         def text_of(sel):
@@ -162,16 +162,16 @@ def parse_apartments(html: str) -> list:
         if sm:
             size = sm.group(1)
 
-        # Extract floor / bedrooms / bathrooms from .tile__info <li title="...">
+        # Extract floor / bedrooms / bathrooms (supports EN + GR labels)
         floor = bedrooms = bathrooms = ""
         for li in art.select(".tile__info li"):
             label = (li.get("title") or "").lower()
             value = re.sub(r"\s+", " ", li.get_text(" ", strip=True))
-            if label == "floor":
+            if label in ("floor", "όροφος"):
                 floor = value
-            elif label == "bedrooms":
+            elif label in ("bedrooms", "υπνοδωμάτια"):
                 bedrooms = value
-            elif label == "bathrooms":
+            elif label in ("bathrooms", "μπάνια"):
                 bathrooms = value
 
         # Image URL: prefer src, fall back to data-src
