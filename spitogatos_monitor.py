@@ -89,6 +89,7 @@ def fetch_html_via_scrapingbee() -> str:
     )
     if r.status_code != 200:
         raise RuntimeError(f"ScrapingBee returned {r.status_code}: {r.text[:300]}")
+    r.encoding = "utf-8"  # response has UTF-8 bytes but no charset header → force it
     return r.text
 
 
@@ -219,33 +220,58 @@ def fetch_apartments() -> list:
     return apartments
 
 
+def _to_greek(s: str) -> str:
+    """Translate common English terms to Greek for display."""
+    if not s:
+        return s
+    rules = [
+        (r"Heraklion Cretes", "Ηράκλειο Κρήτης"),
+        (r"Heraklion Prefecture", "Νομός Ηρακλείου"),
+        (r"\bStudio\b", "Στούντιο"),
+        (r"\bApartment\b", "Διαμέρισμα"),
+        (r"\bMaisonette\b", "Μεζονέτα"),
+        (r"\bLoft\b", "Λοφτ"),
+        (r"\bHouse\b", "Σπίτι"),
+        (r"\bDetached House\b", "Μονοκατοικία"),
+        (r"\bCenter\b", "Κέντρο"),
+        (r"/\s*month\b", "/ μήνα"),
+        (r"(\d+)\s*m²", r"\1 τμ"),
+        (r"(\d+)\s*sq\.?m\.?", r"\1 τμ"),
+        (r"(\d+)\s*br\b", r"\1 υπν."),
+        (r"(\d+)\s*ba\b", r"\1 μπ."),
+        (r"(\d+)\s*(?:st|nd|rd|th)\b", r"\1ος"),
+    ]
+    for pat, rep in rules:
+        s = re.sub(pat, rep, s)
+    return s
+
+
 def _html_escape(s: str) -> str:
     return (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
 def _build_caption(apt: dict, max_len: int = 1024) -> str:
     """Build an HTML-formatted Telegram caption for one apartment (≤1024 chars)."""
-    parts = [f"<b>🏠 {_html_escape(apt['title'])}</b>"]
+    parts = [f"<b>🏠 {_html_escape(_to_greek(apt['title']))}</b>"]
     if apt.get("price"):
-        parts.append(f"💰 <b>{_html_escape(apt['price'])}</b>")
+        parts.append(f"💰 <b>{_html_escape(_to_greek(apt['price']))}</b>")
     if apt.get("location"):
-        parts.append(f"📍 {_html_escape(apt['location'])}")
+        parts.append(f"📍 {_html_escape(_to_greek(apt['location']))}")
 
     specs = []
     if apt.get("bedrooms"):
-        specs.append(f"🛏 {_html_escape(apt['bedrooms'])}")
+        specs.append(f"🛏 {_html_escape(_to_greek(apt['bedrooms']))}")
     if apt.get("bathrooms"):
-        specs.append(f"🛁 {_html_escape(apt['bathrooms'])}")
+        specs.append(f"🛁 {_html_escape(_to_greek(apt['bathrooms']))}")
     if apt.get("floor"):
-        specs.append(f"🏢 {_html_escape(apt['floor'])}")
+        specs.append(f"🏢 {_html_escape(_to_greek(apt['floor']))}")
     if specs:
         parts.append(" · ".join(specs))
 
     desc = (apt.get("description") or "").strip()
     if desc:
-        # Squash whitespace and trim
         desc = re.sub(r"\s+", " ", desc)
-        budget = max_len - sum(len(p) + 1 for p in parts) - 80  # leave room for link
+        budget = max_len - sum(len(p) + 1 for p in parts) - 80
         if budget > 60:
             preview = desc[:budget].rstrip()
             if len(desc) > budget:
