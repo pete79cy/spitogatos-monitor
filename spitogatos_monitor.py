@@ -145,6 +145,7 @@ def parse_apartments(html: str) -> list:
 
         title = text_of(".tile__title")
         location = text_of(".tile__location")
+        description = text_of(".tile__description")
 
         price = ""
         for sel in [".tile__price", "[class*=price]"]:
@@ -152,13 +153,31 @@ def parse_apartments(html: str) -> list:
             if price:
                 break
         if not price:
-            img = art.select_one("img")
-            price = _extract_price_from_alt(img.get("alt", "") if img else "")
+            img_alt_for_price = art.select_one("img")
+            price = _extract_price_from_alt(img_alt_for_price.get("alt", "") if img_alt_for_price else "")
 
         size = ""
         sm = re.search(r"(\d+\s*m²)", title)
         if sm:
             size = sm.group(1)
+
+        # Extract floor / bedrooms / bathrooms from .tile__info <li title="...">
+        floor = bedrooms = bathrooms = ""
+        for li in art.select(".tile__info li"):
+            label = (li.get("title") or "").lower()
+            value = re.sub(r"\s+", " ", li.get_text(" ", strip=True))
+            if label == "floor":
+                floor = value
+            elif label == "bedrooms":
+                bedrooms = value
+            elif label == "bathrooms":
+                bathrooms = value
+
+        # Image URL: prefer src, fall back to data-src
+        image = ""
+        img = art.select_one("img")
+        if img:
+            image = img.get("src") or img.get("data-src") or ""
 
         apartments.append({
             "id": apt_id,
@@ -166,6 +185,11 @@ def parse_apartments(html: str) -> list:
             "price": price,
             "location": location,
             "size": size,
+            "description": description,
+            "floor": floor,
+            "bedrooms": bedrooms,
+            "bathrooms": bathrooms,
+            "image": image,
             "link": link,
             "found_at": datetime.now().isoformat(),
         })
@@ -195,41 +219,103 @@ def fetch_apartments() -> list:
     return apartments
 
 
+def _html_escape(s: str) -> str:
+    return (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _build_caption(apt: dict, max_len: int = 1024) -> str:
+    """Build an HTML-formatted Telegram caption for one apartment (≤1024 chars)."""
+    parts = [f"<b>🏠 {_html_escape(apt['title'])}</b>"]
+    if apt.get("price"):
+        parts.append(f"💰 <b>{_html_escape(apt['price'])}</b>")
+    if apt.get("location"):
+        parts.append(f"📍 {_html_escape(apt['location'])}")
+
+    specs = []
+    if apt.get("bedrooms"):
+        specs.append(f"🛏 {_html_escape(apt['bedrooms'])}")
+    if apt.get("bathrooms"):
+        specs.append(f"🛁 {_html_escape(apt['bathrooms'])}")
+    if apt.get("floor"):
+        specs.append(f"🏢 {_html_escape(apt['floor'])}")
+    if specs:
+        parts.append(" · ".join(specs))
+
+    desc = (apt.get("description") or "").strip()
+    if desc:
+        # Squash whitespace and trim
+        desc = re.sub(r"\s+", " ", desc)
+        budget = max_len - sum(len(p) + 1 for p in parts) - 80  # leave room for link
+        if budget > 60:
+            preview = desc[:budget].rstrip()
+            if len(desc) > budget:
+                preview += "…"
+            parts.append(f"\n📝 {_html_escape(preview)}")
+
+    if apt.get("link"):
+        parts.append(f'\n<a href="{_html_escape(apt["link"])}">🔗 Δες αγγελία</a>')
+
+    return "\n".join(parts)[:max_len]
+
+
+def _telegram_send_photo(photo_url: str, caption: str) -> bool:
+    r = requests.post(
+        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto",
+        json={
+            "chat_id": TELEGRAM_CHAT_ID,
+            "photo": photo_url,
+            "caption": caption,
+            "parse_mode": "HTML",
+        },
+        timeout=30,
+    )
+    return r.ok
+
+
+def _telegram_send_message(text: str) -> bool:
+    r = requests.post(
+        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+        json={
+            "chat_id": TELEGRAM_CHAT_ID,
+            "text": text,
+            "parse_mode": "HTML",
+            "disable_web_page_preview": True,
+        },
+        timeout=30,
+    )
+    return r.ok
+
+
 def send_telegram_notification(apartments):
+    """Send one Telegram message per apartment (photo + rich caption)."""
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
         return
 
-    message = "🏠 *Νέα Φοιτητικά Διαμερίσματα στο Ηράκλειο*\n\n"
-    message += f"Βρέθηκαν {len(apartments)} νέες αγγελίες:\n\n"
-    for apt in apartments[:10]:
-        message += f"🔹 *{apt['title']}*\n"
-        if apt["price"]:
-            message += f"💰 {apt['price']}\n"
-        if apt["location"]:
-            message += f"📍 {apt['location']}\n"
-        if apt["size"]:
-            message += f"📏 {apt['size']}\n"
-        if apt["link"]:
-            message += f"🔗 [Δες Αγγελία]({apt['link']})\n"
-        message += "\n"
-    if len(apartments) > 10:
-        message += f"\n... και {len(apartments) - 10} ακόμα αγγελίες"
+    MAX_MESSAGES = 15  # avoid spamming on first run / huge result sets
 
-    try:
-        r = requests.post(
-            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-            json={
-                "chat_id": TELEGRAM_CHAT_ID,
-                "text": message,
-                "parse_mode": "Markdown",
-                "disable_web_page_preview": True,
-            },
-            timeout=30,
-        )
-        r.raise_for_status()
-        print("✅ Telegram notification sent")
-    except Exception as e:
-        print(f"❌ Failed to send Telegram notification: {e}")
+    header = (
+        f"🏠 <b>Νέα Φοιτητικά Διαμερίσματα στο Ηράκλειο</b>\n"
+        f"Βρέθηκαν <b>{len(apartments)}</b> νέες αγγελίες"
+    )
+    if len(apartments) > MAX_MESSAGES:
+        header += f" — στέλνω τις πρώτες {MAX_MESSAGES}"
+    _telegram_send_message(header)
+
+    sent = 0
+    for apt in apartments[:MAX_MESSAGES]:
+        caption = _build_caption(apt)
+        ok = False
+        if apt.get("image"):
+            ok = _telegram_send_photo(apt["image"], caption)
+        if not ok:
+            # Fall back to text-only if photo failed (e.g. invalid URL)
+            ok = _telegram_send_message(caption)
+        if ok:
+            sent += 1
+        else:
+            print(f"❌ Telegram send failed for {apt.get('id')}")
+
+    print(f"✅ Telegram: sent {sent}/{min(len(apartments), MAX_MESSAGES)} listings")
 
 
 def send_email_notification(apartments):
