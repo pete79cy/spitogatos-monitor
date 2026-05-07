@@ -50,6 +50,19 @@ def save_seen_apartments(data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+def _save_debug(page, html: str, tag: str) -> None:
+    """Save HTML + screenshot to DATA_DIR for remote diagnosis."""
+    try:
+        ts = datetime.now().strftime("%Y%m%d-%H%M%S")
+        html_path = DATA_DIR / f"debug-{tag}-{ts}.html"
+        png_path = DATA_DIR / f"debug-{tag}-{ts}.png"
+        html_path.write_text(html, encoding="utf-8")
+        page.screenshot(path=str(png_path), full_page=True)
+        print(f"🐞 Debug saved: {html_path.name}, {png_path.name}")
+    except Exception as e:
+        print(f"⚠️  Could not save debug artifacts: {e}")
+
+
 def _extract_price_from_alt(alt: str) -> str:
     if not alt:
         return ""
@@ -80,15 +93,30 @@ def fetch_apartments():
             page.wait_for_timeout(3000)
 
             page.goto(URL, wait_until="domcontentloaded", timeout=60000)
-            page.wait_for_timeout(6000)
 
-            if "Pardon Our" in page.content():
+            # Wait for actual listings to appear (Vue app hydrates after DOM ready)
+            try:
+                page.wait_for_selector("article", timeout=20000)
+            except Exception:
+                pass
+            page.wait_for_timeout(3000)
+
+            html = page.content()
+            title = page.title()
+            print(f"📄 Page title: {title}")
+
+            if "Pardon Our" in html or "Pardon Our" in title:
                 print("⚠️  Hit bot-protection page. Aborting.")
+                _save_debug(page, html, "blocked")
                 return apartments
 
             articles = page.locator("article")
             count = articles.count()
             print(f"📋 Page rendered, {count} article elements found")
+
+            if count == 0:
+                # Save diagnostics so we can see why
+                _save_debug(page, html, "no_articles")
 
             for i in range(count):
                 art = articles.nth(i)
