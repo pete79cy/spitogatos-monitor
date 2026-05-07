@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p .github/workflows)",
+      "Bash(mv daily_monitor.yml .github/workflows/daily_monitor.yml)",
+      "Bash(pip install *)",
+      "Bash(python spitogatos_monitor.py)",
+      "Bash(where py *)",
+      "Bash(py --version)",
+      "Bash(py -m pip install -q -r requirements.txt)",
+      "Bash(py spitogatos_monitor.py)",
+      "Bash(PYTHONIOENCODING=utf-8 py spitogatos_monitor.py)",
+      "Bash(py -c ' *)",
+      "Bash(py -m pip install -q playwright)",
+      "Bash(py -m playwright install chromium)",
+      "Bash(py -m pip install -q playwright-stealth)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git -c user.email=\"you@example.com\" -c user.name=\"You\" commit -m \"Initial commit: spitogatos student apartment monitor\")"
+    ]
+  }
+}

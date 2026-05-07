@@ -1,0 +1,266 @@
+{
+  "apartments": {
+    "2119833469": {
+      "id": "2119833469",
+      "title": "Studio, 40m²",
+      "price": "€570 / month",
+      "location": "Center - Agia Triada (Heraklion Cretes)",
+      "size": "40m²",
+      "link": "https://www.spitogatos.gr/en/property/2119833469",
+      "found_at": "2026-05-07T21:52:54.172276"
+    },
+    "2115639498": {
+      "id": "2115639498",
+      "title": "Apartment, 50m²",
+      "price": "€350 / month",
+      "location": "Dimokratias - Analipsi (Heraklion Cretes)",
+      "size": "50m²",
+      "link": "https://www.spitogatos.gr/en/property/2115639498",
+      "found_at": "2026-05-07T21:52:54.266756"
+    },
+    "2119837006": {
+      "id": "2119837006",
+      "title": "Apartment, 40m²",
+      "price": "€570 / month",
+      "location": "Akadimia (Heraklion Cretes)",
+      "size": "40m²",
+      "link": "https://www.spitogatos.gr/en/property/2119837006",
+      "found_at": "2026-05-07T21:52:54.373656"
+    },
+    "2119836635": {
+      "id": "2119836635",
+      "title": "Studio, 25m²",
+      "price": "€500 / month",
+      "location": "Therissos (Heraklion Cretes)",
+      "size": "25m²",
+      "link": "https://www.spitogatos.gr/en/property/2119836635",
+      "found_at": "2026-05-07T21:52:54.459867"
+    },
+    "2112169848": {
+      "id": "2112169848",
+      "title": "Apartment, 420m²",
+      "price": "€420 / month",
+      "location": "Center - Valide Tzami (Heraklion Cretes)",
+      "size": "420m²",
+      "link": "https://www.spitogatos.gr/en/property/2112169848",
+      "found_at": "2026-05-07T21:52:54.527011"
+    },
+    "2119843373": {
+      "id": "2119843373",
+      "title": "Studio, 20m²",
+      "price": "€500 / month",
+      "location": "Center - Valide Tzami (Heraklion Cretes)",
+      "size": "20m²",
+      "link": "https://www.spitogatos.gr/en/property/2119843373",
+      "found_at": "2026-05-07T21:52:54.626957"
+    },
+    "2114428461": {
+      "id": "2114428461",
+      "title": "Studio, 35m²",
+      "price": "€310 / month",
+      "location": "Estavromenos (Heraklion Cretes)",
+      "size": "35m²",
+      "link": "https://www.spitogatos.gr/en/property/2114428461",
+      "found_at": "2026-05-07T21:52:54.690617"
+    },
+    "2119843365": {
+      "id": "2119843365",
+      "title": "Apartment, 45m²",
+      "price": "€550 / month",
+      "location": "Giofirakia (Heraklion Cretes)",
+      "size": "45m²",
+      "link": "https://www.spitogatos.gr/en/property/2119843365",
+      "found_at": "2026-05-07T21:52:54.800775"
+    },
+    "2119843364": {
+      "id": "2119843364",
+      "title": "Apartment, 45m²",
+      "price": "€550 / month",
+      "location": "Giofirakia (Heraklion Cretes)",
+      "size": "45m²",
+      "link": "https://www.spitogatos.gr/en/property/2119843364",
+      "found_at": "2026-05-07T21:52:54.929195"
+    },
+    "2116529435": {
+      "id": "2116529435",
+      "title": "Studio, 20m²",
+      "price": "€330 / month",
+      "location": "Dimokratias - Analipsi (Heraklion Cretes)",
+      "size": "20m²",
+      "link": "https://www.spitogatos.gr/en/property/2116529435",
+      "found_at": "2026-05-07T21:52:55.030062"
+    },
+    "2119836637": {
+      "id": "2119836637",
+      "title": "Apartment, 40m²",
+      "price": "€480 / month",
+      "location": "Therissos (Heraklion Cretes)",
+      "size": "40m²",
+      "link": "https://www.spitogatos.gr/en/property/2119836637",
+      "found_at": "2026-05-07T21:52:55.144968"
+    },
+    "2116461167": {
+      "id": "2116461167",
+      "title": "Studio, 25m²",
+      "price": "€300 / month",
+      "location": "Agios Ioannis (Heraklion Cretes)",
+      "size": "25m²",
+      "link": "https://www.spitogatos.gr/en/property/2116461167",
+      "found_at": "2026-05-07T21:52:55.240720"
+    },
+    "2119837772": {
+      "id": "2119837772",
+      "title": "Apartment, 25m²",
+      "price": "€250 / month",
+      "location": "Dilina (Heraklion Cretes)",
+      "size": "25m²",
+      "link": "https://www.spitogatos.gr/en/property/2119837772",
+      "found_at": "2026-05-07T21:52:55.343711"
+    },
+    "2116581299": {
+      "id": "2116581299",
+      "title": "Apartment, 120m²",
+      "price": "€1,150 / month",
+      "location": "Center - Agios Dimitrios (Heraklion Cretes)",
+      "size": "120m²",
+      "link": "https://www.spitogatos.gr/en/property/2116581299",
+      "found_at": "2026-05-07T21:52:55.442360"
+    },
+    "2119837806": {
+      "id": "2119837806",
+      "title": "Apartment, 20m²",
+      "price": "€220 / month",
+      "location": "Therissos (Heraklion Cretes)",
+      "size": "20m²",
+      "link": "https://www.spitogatos.gr/en/property/2119837806",
+      "found_at": "2026-05-07T21:52:55.528597"
+    },
+    "2119843372": {
+      "id": "2119843372",
+      "title": "Studio, 35m²",
+      "price": "€550 / month",
+      "location": "Center - Agios Minas (Heraklion Cretes)",
+      "size": "35m²",
+      "link": "https://www.spitogatos.gr/en/property/2119843372",
+      "found_at": "2026-05-07T21:52:55.597207"
+    },
+    "2119835333": {
+      "id": "2119835333",
+      "title": "Studio, 35m²",
+      "price": "€350 / month",
+      "location": "Dimokratias - Analipsi (Heraklion Cretes)",
+      "size": "35m²",
+      "link": "https://www.spitogatos.gr/en/property/2119835333",
+      "found_at": "2026-05-07T21:52:55.676265"
+    },
+    "2110101096": {
+      "id": "2110101096",
+      "title": "Studio, 40m²",
+      "price": "€500 / month",
+      "location": "Therissos (Heraklion Cretes)",
+      "size": "40m²",
+      "link": "https://www.spitogatos.gr/en/property/2110101096",
+      "found_at": "2026-05-07T21:52:55.766876"
+    },
+    "2115978572": {
+      "id": "2115978572",
+      "title": "Apartment, 75m²",
+      "price": "€600 / month",
+      "location": "Center - Agios Minas (Heraklion Cretes)",
+      "size": "75m²",
+      "link": "https://www.spitogatos.gr/en/property/2115978572",
+      "found_at": "2026-05-07T21:52:55.848388"
+    },
+    "2110728611": {
+      "id": "2110728611",
+      "title": "Apartment, 60m²",
+      "price": "€600 / month",
+      "location": "Estavromenos (Heraklion Cretes)",
+      "size": "60m²",
+      "link": "https://www.spitogatos.gr/en/property/2110728611",
+      "found_at": "2026-05-07T21:52:55.917105"
+    },
+    "2119842219": {
+      "id": "2119842219",
+      "title": "Apartment, 120m²",
+      "price": "€1,300 / month",
+      "location": "Ampelokipoi (Heraklion Cretes)",
+      "size": "120m²",
+      "link": "https://www.spitogatos.gr/en/property/2119842219",
+      "found_at": "2026-05-07T21:52:56.001019"
+    },
+    "2110009945": {
+      "id": "2110009945",
+      "title": "Studio, 28m²",
+      "price": "€300 / month",
+      "location": "Agios Ioannis (Heraklion Cretes)",
+      "size": "28m²",
+      "link": "https://www.spitogatos.gr/en/property/2110009945",
+      "found_at": "2026-05-07T21:52:56.147739"
+    },
+    "2119842931": {
+      "id": "2119842931",
+      "title": "Apartment, 42m²",
+      "price": "€450 / month",
+      "location": "Xeropotamos (Heraklion Cretes)",
+      "size": "42m²",
+      "link": "https://www.spitogatos.gr/en/property/2119842931",
+      "found_at": "2026-05-07T21:52:56.239486"
+    },
+    "2117350365": {
+      "id": "2117350365",
+      "title": "Studio, 30m²",
+      "price": "€320 / month",
+      "location": "Estavromenos (Heraklion Cretes)",
+      "size": "30m²",
+      "link": "https://www.spitogatos.gr/en/property/2117350365",
+      "found_at": "2026-05-07T21:52:56.320779"
+    },
+    "2119837004": {
+      "id": "2119837004",
+      "title": "Apartment, 115m²",
+      "price": "€1,100 / month",
+      "location": "Mastabas (Heraklion Cretes)",
+      "size": "115m²",
+      "link": "https://www.spitogatos.gr/en/property/2119837004",
+      "found_at": "2026-05-07T21:52:56.400314"
+    },
+    "2119841164": {
+      "id": "2119841164",
+      "title": "Studio, 25m²",
+      "price": "€350 / month",
+      "location": "Mastabas (Heraklion Cretes)",
+      "size": "25m²",
+      "link": "https://www.spitogatos.gr/en/property/2119841164",
+      "found_at": "2026-05-07T21:52:56.479338"
+    },
+    "219825005": {
+      "id": "219825005",
+      "title": "Maisonette, 80m²",
+      "price": "€850 / month",
+      "location": "Center - Agios Dimitrios (Heraklion Cretes)",
+      "size": "80m²",
+      "link": "https://www.spitogatos.gr/en/property/219825005",
+      "found_at": "2026-05-07T21:52:56.550350"
+    },
+    "2119841790": {
+      "id": "2119841790",
+      "title": "Studio, 25m²",
+      "price": "€350 / month",
+      "location": "Akadimia (Heraklion Cretes)",
+      "size": "25m²",
+      "link": "https://www.spitogatos.gr/en/property/2119841790",
+      "found_at": "2026-05-07T21:52:56.630462"
+    },
+    "2119831188": {
+      "id": "2119831188",
+      "title": "Apartment, 130m²",
+      "price": "€700 / month",
+      "location": "Agios Ioannis (Heraklion Cretes)",
+      "size": "130m²",
+      "link": "https://www.spitogatos.gr/en/property/2119831188",
+      "found_at": "2026-05-07T21:52:56.711079"
+    }
+  },
+  "last_check": "2026-05-07T21:52:57.635796"
+}
