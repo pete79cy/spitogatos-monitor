@@ -19,7 +19,9 @@ from playwright_stealth import Stealth
 
 URL = "https://www.spitogatos.gr/en/to_rent-homes/heraclion-cretes/student_houses/last_update_24h/first_publish_24h"
 HOME_URL = "https://www.spitogatos.gr/"
-DATA_FILE = Path(__file__).parent / "seen_apartments.json"
+DATA_DIR = Path(os.getenv("DATA_DIR", str(Path(__file__).parent)))
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+DATA_FILE = DATA_DIR / "seen_apartments.json"
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
