@@ -1,29 +1,32 @@
 # Coolify Deployment
 
-Deploy το spitogatos monitor σε δικό σου server μέσω Coolify, χρησιμοποιώντας **ScrapingBee** ως residential proxy (αναγκαίο γιατί το spitogatos μπλοκάρει όλες τις datacenter IPs μέσω CloudFront WAF).
+Deploy το spitogatos monitor + dashboard στο δικό σου Coolify server.
 
-## Πώς δουλεύει
+## Αρχιτεκτονική
 
-- Το container τρέχει συνέχεια αλλά είναι idle (`sleep infinity`).
-- Coolify **Scheduled Task** εκτελεί το script κάθε μέρα στις 04:00 UTC (~07:00 Ελλάδα).
-- Το script κάνει request στο **ScrapingBee API** με Greek residential proxy και παίρνει το rendered HTML.
-- Volume στο `/app/data` διατηρεί το `seen_apartments.json` ανάμεσα σε runs.
+```
+[Coolify Cron 04:00 UTC] ──► spitogatos_monitor.py
+                              ├─ Fetch via ScrapingBee (residential proxy)
+                              ├─ Parse → seen_apartments.json
+                              ├─ Render → /app/data/web/{index.html, YYYY-MM-DD.html}
+                              └─ Telegram: photos + dashboard link
+
+[24/7 container]  ──►  serve.py (port 8000, HTTP Basic Auth)
+                       └─ exposed by Coolify σε https://<assigned-domain>
+```
 
 ## Setup steps
 
-### 1. ScrapingBee account (δωρεάν)
+### 1. ScrapingBee account
 
-- Φτιάξε account στο [scrapingbee.com](https://www.scrapingbee.com/) — δωρεάν 1.000 credits/μήνα
-- Κάθε run κοστίζει 25 credits (premium proxy + JS rendering) → ~40 runs/μήνα, αρκεί για daily
-- Στο dashboard, αντίγραψε το **API Key**
+[scrapingbee.com](https://www.scrapingbee.com/) → δωρεάν 1.000 credits/μήνα. Αντίγραψε το API key.
 
 ### 2. Νέα Application στο Coolify
 
-- `+ New` → `Public Repository`
-- Repository: `https://github.com/pete79cy/spitogatos-monitor`
-- Branch: `main`
-- Build Pack: **Dockerfile**
-- Port: άσε κενό (δεν εκθέτει port)
+- `+ New` → **Public Repository**: `https://github.com/pete79cy/spitogatos-monitor`
+- Branch: `main` · Build Pack: **Dockerfile**
+- **Port: 8000** (το dashboard server ακούει εκεί)
+- Στο tab **Domains**, άσε το Coolify να generate-άρει domain (ένα κλικ → SSL αυτόματα)
 
 ### 3. Persistent Storage
 
@@ -33,41 +36,55 @@ Storage tab → `+ Add` → **Volume**
 
 ### 4. Environment Variables
 
-| Key | Value |
-|-----|-------|
-| `SCRAPINGBEE_API_KEY` | API key από το ScrapingBee dashboard |
-| `TELEGRAM_BOT_TOKEN` | token από @BotFather |
-| `TELEGRAM_CHAT_ID` | chat id σου |
+| Key | Value | Notes |
+|-----|-------|-------|
+| `SCRAPINGBEE_API_KEY` | … | Από ScrapingBee dashboard |
+| `TELEGRAM_BOT_TOKEN` | … | Από @BotFather |
+| `TELEGRAM_CHAT_ID` | … | Από `getUpdates` |
+| `DASHBOARD_USER` | π.χ. `pete` | Username για το web dashboard |
+| `DASHBOARD_PASSWORD` | … | Password για το web dashboard |
+| `DASHBOARD_URL` | π.χ. `https://spitogatos-xxx.coolify.your` | Coolify-assigned URL — βάλ' το ΜΕΤΑ τη πρώτη deployment |
 
 ### 5. Deploy
 
-`Deploy` button. Στα logs θα δεις `sleep infinity` — σωστό.
+`Deploy` → Στα logs θα δεις: `[serve] Root: /app/data/web  Port: 8000  Auth: on`.
+Επίσκεψε το assigned domain → θα ζητήσει user/password → θα δεις το dashboard
+(άδειο μέχρι να τρέξει το πρώτο cron).
 
-### 6. Scheduled Task
+### 6. Πρόσθεσε το `DASHBOARD_URL` στα env vars
 
-Στο **Scheduled Tasks** tab:
-- `+ Add Scheduled Task`
+Αφού το Coolify εκχωρήσει domain, αντίγραψέ το και βάλε σε νέο env var
+`DASHBOARD_URL`. Redeploy. Από εδώ και πέρα κάθε Telegram header θα έχει link
+στο dashboard.
+
+### 7. Scheduled Task
+
+Scheduled Tasks tab → `+ Add`:
 - Name: `daily-check`
 - Command: `python /app/spitogatos_monitor.py`
 - Frequency: `0 4 * * *`
 
-### 7. Manual test
+### 8. Manual test
 
-Στο Terminal της εφαρμογής:
-```bash
-python /app/spitogatos_monitor.py
+Coolify Terminal → `python /app/spitogatos_monitor.py`. Στα logs:
+```
+🐝 Fetching via ScrapingBee...
+📋 Parsed 30 listings
+📄 Dashboard written: index.html, 2026-05-08.html (30 listings)
+✅ Telegram: sent 15/15 listings
 ```
 
-Θα δεις `🐝 Fetching via ScrapingBee...` και θα παρθούν οι αγγελίες.
+## Dashboard features
+
+- Συγκριτικός πίνακας με sort σε όλες τις στήλες
+- Filter ανά συνοικία, τύπο, μέγιστη τιμή, ελάχιστα τμ, μόνο νέες
+- Στατιστικά: σύνολο, εύρος, μέσος όρος, νέες σήμερα
+- Charts: κατανομή τιμών + μέση τιμή ανά συνοικία
+- Ημερήσια snapshots (`YYYY-MM-DD.html`) — link στο footer
+- Mobile responsive
 
 ## Troubleshooting
 
-- **`ScrapingBee returned 401`** → λάθος ή λείπει το `SCRAPINGBEE_API_KEY`.
-- **`ScrapingBee returned 402`** → τέλειωσαν τα δωρεάν credits του μήνα (πάνε στο dashboard για πληροφορίες).
-- **`Got bot-protection / CloudFront page`** → δοκίμασε `country_code=eu` αντί για `gr` στον κώδικα, ή γύρισε το `premium_proxy` σε `stealth_proxy`.
-- **Cron δεν τρέχει** → έλεγξε ότι το Scheduled Task είναι enabled και βλέπει το ίδιο container.
-
-## GH Actions vs Coolify
-
-⚠️ Διάλεξε ένα. Αν χρησιμοποιείς Coolify, disable το GitHub Actions workflow:
-[github.com/pete79cy/spitogatos-monitor/actions](https://github.com/pete79cy/spitogatos-monitor/actions) → `Daily Apartment Monitor` → `...` → `Disable workflow`.
+- **Dashboard 401**: Λάθος credentials ή λείπουν env vars. Άδεια `DASHBOARD_USER` = no auth.
+- **Dashboard 404**: Δεν έχει τρέξει ακόμα το cron. Run το manual test.
+- **`502 Bad Gateway`** στο Coolify domain: Άσε λίγο μετά το deploy να ξεκινήσει ο server, ή έλεγξε ότι το EXPOSE 8000 ταιριάζει με το Coolify port setting.

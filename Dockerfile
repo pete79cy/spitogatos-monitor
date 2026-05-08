@@ -2,16 +2,21 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# ScrapingBee path needs only requests + bs4 — install just those for a slim image
 RUN pip install --no-cache-dir requests>=2.31.0 beautifulsoup4>=4.12.0
 
-COPY spitogatos_monitor.py .
+COPY spitogatos_monitor.py dashboard.py serve.py ./
 
-RUN mkdir -p /app/data
+# Persistent dir (Coolify volume) — holds seen_apartments.json + web/
+RUN mkdir -p /app/data/web
 ENV DATA_DIR=/app/data
+ENV WEB_DIR=/app/data/web
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONIOENCODING=utf-8
+ENV LANG=C.UTF-8
 
-# Idle by default. Coolify Scheduled Task execs the script on cron.
-# Manual run inside container:
-#   python /app/spitogatos_monitor.py
-CMD ["sleep", "infinity"]
+EXPOSE 8000
+
+# Serves the dashboard with HTTP Basic Auth (if DASHBOARD_USER/PASSWORD set).
+# The Coolify Scheduled Task runs `python /app/spitogatos_monitor.py` which
+# regenerates /app/data/web/index.html on each cron tick.
+CMD ["python", "/app/serve.py"]

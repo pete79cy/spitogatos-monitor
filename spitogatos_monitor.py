@@ -26,6 +26,8 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 DATA_FILE = DATA_DIR / "seen_apartments.json"
 
 SCRAPINGBEE_API_KEY = os.getenv("SCRAPINGBEE_API_KEY", "")
+DASHBOARD_URL = os.getenv("DASHBOARD_URL", "")
+WEB_DIR = os.getenv("WEB_DIR", str(DATA_DIR / "web"))
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
@@ -325,6 +327,8 @@ def send_telegram_notification(apartments):
     )
     if len(apartments) > MAX_MESSAGES:
         header += f" — στέλνω τις πρώτες {MAX_MESSAGES}"
+    if DASHBOARD_URL:
+        header += f'\n📊 <a href="{_html_escape(DASHBOARD_URL)}">Συγκριτικό dashboard</a>'
     _telegram_send_message(header)
 
     sent = 0
@@ -410,6 +414,18 @@ def main():
     new_apartments = [a for a in apartments if a["id"] not in seen_ids]
     for apt in new_apartments:
         data["apartments"][apt["id"]] = apt
+
+    # Mark current apartments as new/not-new for the dashboard
+    new_ids = {a["id"] for a in new_apartments}
+    for apt in apartments:
+        apt["is_new"] = apt["id"] in new_ids
+
+    # Render dashboard (always, even if no new apts — gives a current snapshot)
+    try:
+        from dashboard import render_dashboard
+        render_dashboard(apartments, WEB_DIR)
+    except Exception as e:
+        print(f"⚠️  Dashboard render failed: {e}")
 
     if new_apartments:
         print(f"\n🎉 {len(new_apartments)} NEW apartments!\n")
