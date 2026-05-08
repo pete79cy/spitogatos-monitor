@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>⭐ Favorites Room · Spitogatos</title>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --text:#e2e8f0; --muted:#94a3b8;
+          --accent:#38bdf8; --new:#22c55e; --border:#334155;
+          --warn:#f59e0b; --bubble:#0b3a52; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+         background:var(--bg); color:var(--text); }
+  header { display:flex; gap:16px; align-items:center; flex-wrap:wrap;
+           padding:12px 16px; border-bottom:1px solid var(--border);
+           background:var(--panel); position:sticky; top:0; z-index:10; }
+  header h1 { margin:0; font-size:18px; }
+  header a.back { color:var(--accent); text-decoration:none; font-size:14px; }
+  header a.back:hover { text-decoration:underline; }
+  .who { margin-left:auto; font-size:13px; color:var(--muted); }
+  .who select { background:var(--bg); color:var(--text); border:1px solid var(--border);
+                border-radius:6px; padding:4px 8px; font-size:13px; margin-left:6px; }
+  .layout { display:grid; grid-template-columns: 1fr 380px;
+            gap:16px; padding:16px; max-width:1400px; margin:0 auto; }
+  @media (max-width:900px) { .layout { grid-template-columns: 1fr; } }
+  main h2, aside h2 { margin:0 0 12px 0; font-size:16px; }
+  .muted { color:var(--muted); }
+
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:8px; overflow:hidden;
+          display:flex; flex-direction:column; }
+  .card img { width:100%; height:140px; object-fit:cover; }
+  .card .body { padding:10px; flex:1; }
+  .card h3 { margin:0 0 4px 0; font-size:14px; }
+  .card .price { color:var(--accent); font-weight:600; font-size:14px; }
+  .card .loc { color:var(--muted); font-size:12px; margin-top:4px; }
+  .card .specs { color:var(--muted); font-size:12px; margin-top:4px; }
+  .card .actions { display:flex; justify-content:space-between; align-items:center;
+                   padding:8px 10px; border-top:1px solid var(--border); }
+  .card .actions a { color:var(--accent); text-decoration:none; font-size:13px; }
+  .card .actions button { background:transparent; color:var(--warn); border:1px solid var(--warn);
+                          border-radius:4px; padding:4px 8px; font-size:12px; cursor:pointer; }
+  .card .actions button:hover { background:var(--warn); color:#000; }
+
+  aside { background:var(--panel); border:1px solid var(--border); border-radius:8px;
+          padding:12px; display:flex; flex-direction:column; height:calc(100vh - 110px);
+          position:sticky; top:80px; }
+  #messages { flex:1; overflow-y:auto; padding-right:4px; margin-bottom:8px; }
+  .msg { background:var(--bubble); border-radius:6px; padding:6px 8px; margin-bottom:6px;
+         font-size:13px; word-wrap:break-word; }
+  .msg .user { font-weight:600; color:var(--accent); }
+  .msg .ts   { font-size:10px; color:var(--muted); margin-left:6px; }
+  .msg .text { margin-top:2px; white-space:pre-wrap; }
+  #chatForm { display:flex; gap:6px; }
+  #chatForm input { flex:1; background:var(--bg); color:var(--text); border:1px solid var(--border);
+                    border-radius:6px; padding:6px 8px; font-size:14px; }
+  #chatForm button { background:var(--accent); color:#000; border:0; border-radius:6px;
+                     padding:6px 12px; font-weight:600; cursor:pointer; }
+
+  .empty { padding:32px; text-align:center; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="/">← Πίσω στο dashboard</a>
+  <h1>⭐ Favorites Room</h1>
+  <div class="who">
+    Ποιος είμαι;
+    <select id="user">
+      {% for p in participants %}<option>{{ p }}</option>{% endfor %}
+    </select>
+  </div>
+</header>
+
+<div class="layout">
+  <main>
+    <h2>Αγαπημένα ({{ favorites|length }})</h2>
+    {% if not favorites %}
+      <div class="empty">
+        Δεν υπάρχουν αγαπημένα ακόμα.<br>
+        Πήγαινε στο <a href="/" style="color:var(--accent)">dashboard</a> και κλίκαρε ⭐ σε όποιο σου αρέσει.
+      </div>
+    {% endif %}
+    <div class="cards">
+      {% for f in favorites %}
+      <div class="card" data-id="{{ f.id }}">
+        {% if f.image %}<img src="{{ f.image }}" alt="">{% endif %}
+        <div class="body">
+          <h3>{{ f.title }}</h3>
+          <div class="price">{{ f.price }}</div>
+          <div class="loc">📍 {{ f.location }}</div>
+          <div class="specs">
+            {% if f.bedrooms %}🛏 {{ f.bedrooms }}{% endif %}
+            {% if f.bathrooms %} · 🛁 {{ f.bathrooms }}{% endif %}
+            {% if f.floor %} · 🏢 {{ f.floor }}{% endif %}
+          </div>
+        </div>
+        <div class="actions">
+          <a href="{{ f.link }}" target="_blank">↗ Σπιτογάτος</a>
+          <button class="remove" data-id="{{ f.id }}">Αφαίρεση</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </main>
+
+  <aside>
+    <h2>💬 Chat</h2>
+    <div id="messages"></div>
+    <form id="chatForm" autocomplete="off">
+      <input id="chatText" placeholder="Γράψε μήνυμα...">
+      <button>Στείλε</button>
+    </form>
+  </aside>
+</div>
+
+<script>
+  const userSel = document.getElementById('user');
+  const saved = localStorage.getItem('spitogatos_user');
+  if (saved) {
+    for (const o of userSel.options) if (o.value === saved) { userSel.value = saved; break; }
+  }
+  userSel.addEventListener('change', () => localStorage.setItem('spitogatos_user', userSel.value));
+
+  document.querySelectorAll('button.remove').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Αφαίρεση αυτής της αγγελίας;')) return;
+      const id = btn.dataset.id;
+      const r = await fetch(`/api/favorites/${id}`, { method: 'DELETE' });
+      if (r.ok) btn.closest('.card').remove();
+    });
+  });
+
+  // Chat
+  let lastId = 0;
+  const messagesBox = document.getElementById('messages');
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+  function formatTs(iso) {
+    try { return new Date(iso).toLocaleString('el-GR', {hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}); }
+    catch { return iso; }
+  }
+
+  async function loadChat() {
+    try {
+      const r = await fetch(`/api/chat?since=${lastId}`);
+      const msgs = await r.json();
+      const wasAtBottom = messagesBox.scrollHeight - messagesBox.scrollTop - messagesBox.clientHeight < 60;
+      msgs.forEach(m => {
+        if (m.id <= lastId) return;
+        lastId = m.id;
+        const el = document.createElement('div');
+        el.className = 'msg';
+        el.innerHTML = `<span class="user">${escapeHtml(m.user)}</span><span class="ts">${formatTs(m.ts)}</span><div class="text">${escapeHtml(m.text)}</div>`;
+        messagesBox.appendChild(el);
+      });
+      if (msgs.length && wasAtBottom) messagesBox.scrollTop = messagesBox.scrollHeight;
+    } catch (e) { console.error(e); }
+  }
+
+  document.getElementById('chatForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('chatText');
+    const text = input.value.trim();
+    if (!text) return;
+    const r = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: userSel.value, text }),
+    });
+    if (r.ok) { input.value = ''; loadChat(); }
+  });
+
+  loadChat();
+  setInterval(loadChat, 5000);
+</script>
+</body>
+</html>

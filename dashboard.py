@@ -129,6 +129,10 @@ TEMPLATE = r"""<!doctype html>
            font-weight:600; margin-left:4px; }
   .price { font-weight:600; }
   .ppsqm { color: var(--accent); font-weight:500; }
+  .star { background:none; border:0; cursor:pointer; font-size:18px; padding:2px 6px;
+          color:#475569; transition:color .1s; }
+  .star.on { color:#fbbf24; }
+  .star:hover { color:#fbbf24; }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
   .charts { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
@@ -150,7 +154,9 @@ TEMPLATE = r"""<!doctype html>
 </head>
 <body>
 
-<h1>🏠 Spitogatos · Φοιτητικά Ηράκλειο</h1>
+<h1>🏠 Spitogatos · Φοιτητικά Ηράκλειο
+  <a href="/favorites" style="font-size:14px;margin-left:12px;color:var(--accent);text-decoration:none">⭐ Favorites Room →</a>
+</h1>
 <div class="muted">Τελευταία ενημέρωση: <strong>__DATE__</strong> · __NEW_COUNT__ νέες σήμερα</div>
 
 <div class="row">
@@ -190,6 +196,7 @@ TEMPLATE = r"""<!doctype html>
     <thead>
       <tr>
         <th></th>
+        <th></th>
         <th data-key="title">Τύπος</th>
         <th data-key="price_num" class="sorted asc">Τιμή</th>
         <th data-key="sqm">τ.μ.</th>
@@ -219,6 +226,39 @@ TEMPLATE = r"""<!doctype html>
 <script>
 const APARTMENTS = __APARTMENTS_JSON__;
 const HISTORY = __HISTORY_JSON__;
+const APT_BY_ID = Object.fromEntries(APARTMENTS.map(a => [a.id, a]));
+let FAVS = new Set();
+
+async function loadFavs() {
+  try {
+    const r = await fetch('/api/favorites/ids');
+    if (r.ok) FAVS = new Set(await r.json());
+  } catch (e) { console.error(e); }
+}
+
+async function toggleFav(btn) {
+  const id = btn.dataset.id;
+  const isOn = FAVS.has(id);
+  btn.disabled = true;
+  try {
+    if (isOn) {
+      const r = await fetch('/api/favorites/' + id, { method: 'DELETE' });
+      if (r.ok) FAVS.delete(id);
+    } else {
+      const apt = APT_BY_ID[id];
+      const r = await fetch('/api/favorites/' + id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(apt),
+      });
+      if (r.ok) FAVS.add(id);
+    }
+    btn.classList.toggle('on', FAVS.has(id));
+    btn.textContent = FAVS.has(id) ? '★' : '☆';
+  } finally {
+    btn.disabled = false;
+  }
+}
 
 // History links
 document.getElementById('historyLinks').innerHTML =
@@ -274,6 +314,7 @@ function render() {
   const tbody = document.querySelector('#tbl tbody');
   tbody.innerHTML = items.map(a => `
     <tr>
+      <td><button class="star ${FAVS.has(a.id) ? 'on' : ''}" data-id="${a.id}" title="Αγαπημένο">${FAVS.has(a.id) ? '★' : '☆'}</button></td>
       <td>${a.image ? `<img src="${a.image}" class="thumb" alt="">` : ''}</td>
       <td>${a.title}${a.is_new ? '<span class="badge">ΝΕΟ</span>' : ''}</td>
       <td class="price">${a.price}</td>
@@ -284,6 +325,10 @@ function render() {
       <td class="hide-mobile">${a.floor}</td>
       <td><a href="${a.link}" target="_blank">↗</a></td>
     </tr>`).join('');
+  // Wire up star buttons
+  tbody.querySelectorAll('button.star').forEach(btn => {
+    btn.addEventListener('click', () => toggleFav(btn));
+  });
   // Update sort indicator
   document.querySelectorAll('th[data-key]').forEach(th => {
     th.classList.toggle('sorted', th.dataset.key === sortKey);
@@ -303,7 +348,8 @@ document.querySelectorAll('th[data-key]').forEach(th => {
   document.getElementById(id).addEventListener('input', render);
 });
 
-render();
+// Load favorites first, then render so stars reflect server state
+loadFavs().then(render);
 
 // Charts
 const allPrices = APARTMENTS.map(a => a.price_num).filter(p => p > 0);
