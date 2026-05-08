@@ -14,7 +14,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONIOENCODING=utf-8
 ENV LANG=C.UTF-8
 
-EXPOSE 8000
+EXPOSE 3000
 
 # Serves the dashboard with HTTP Basic Auth (if DASHBOARD_USER/PASSWORD set).
 # The Coolify Scheduled Task runs `python /app/spitogatos_monitor.py` which

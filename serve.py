@@ -13,7 +13,7 @@ import socketserver
 USER = os.getenv("DASHBOARD_USER", "")
 PASS = os.getenv("DASHBOARD_PASSWORD", "")
 ROOT = os.getenv("WEB_DIR", "/app/data/web")
-PORT = int(os.getenv("PORT") or "8000")
+PORT = int(os.getenv("PORT") or "3000")
 
 os.makedirs(ROOT, exist_ok=True)
 
