@@ -411,15 +411,31 @@ def main():
         print("⚠️  No apartments found.")
         return
 
-    now_iso = datetime.now().isoformat()
+    now = datetime.now()
+    now_iso = now.isoformat()
     current_ids = {a["id"] for a in apartments}
 
-    # Drop stale listings (no longer on Spitogatos) — option (γ): purge when gone
-    stale_ids = set(data["apartments"].keys()) - current_ids
-    for sid in stale_ids:
-        data["apartments"].pop(sid, None)
-    if stale_ids:
-        print(f"🧹 Purged {len(stale_ids)} listings no longer on site")
+    # Mark missing-since on listings that didn't appear in this fetch.
+    # Purge only after 14 consecutive days of being absent (grace period).
+    GRACE_DAYS = 14
+    purged = 0
+    for sid in list(data["apartments"].keys()):
+        if sid in current_ids:
+            data["apartments"][sid].pop("missing_since", None)
+            continue
+        ms = data["apartments"][sid].get("missing_since")
+        if not ms:
+            data["apartments"][sid]["missing_since"] = now_iso
+            continue
+        try:
+            missing_age = (now - datetime.fromisoformat(ms)).days
+        except Exception:
+            missing_age = 0
+        if missing_age >= GRACE_DAYS:
+            data["apartments"].pop(sid, None)
+            purged += 1
+    if purged:
+        print(f"🧹 Purged {purged} listings missing for {GRACE_DAYS}+ days")
 
     # Merge: update existing, insert new, track price drops
     new_apartments = []
@@ -455,17 +471,19 @@ def main():
         for pid, old, new in price_drops:
             print(f"   {pid}: {old} → {new}")
 
-    # Build the list to render: current items only, with metadata from data store
+    # Build the list to render: every accumulated listing.
+    # Tag is_new (first seen today) and missing (not in this run's fetch).
     new_ids = {a["id"] for a in new_apartments}
-    current_apartments = []
-    for apt_id in current_ids:
-        a = dict(data["apartments"][apt_id])
+    all_apartments = []
+    for apt_id, stored in data["apartments"].items():
+        a = dict(stored)
         a["is_new"] = apt_id in new_ids
-        current_apartments.append(a)
+        a["is_missing"] = apt_id not in current_ids
+        all_apartments.append(a)
 
     try:
         from dashboard import render_dashboard
-        render_dashboard(current_apartments, WEB_DIR)
+        render_dashboard(all_apartments, WEB_DIR)
     except Exception as e:
         print(f"⚠️  Dashboard render failed: {e}")
 

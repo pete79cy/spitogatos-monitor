@@ -56,6 +56,7 @@ def _enrich(apt: dict) -> dict:
         "image": apt.get("image", "") or "",
         "link": apt.get("link", "") or "",
         "is_new": bool(apt.get("is_new", False)),
+        "is_missing": bool(apt.get("is_missing", False)),
         "found_at": apt.get("found_at", "") or "",
         "price_changed": bool(apt.get("price_changed", False)),
         "price_history": apt.get("price_history", []) or [],
@@ -127,6 +128,8 @@ TEMPLATE = r"""<!doctype html>
            background:var(--new); color:#022c22; font-size:11px;
            font-weight:600; margin-left:4px; }
   .badge.drop { background:#f59e0b; color:#3a2406; }
+  .badge.miss { background:#475569; color:#cbd5e1; }
+  tr.missing td { opacity:.55; }
   .age { color: var(--muted); font-size:11px; }
   .price { font-weight:600; }
   .ppsqm { color: var(--accent); font-weight:500; }
@@ -188,6 +191,7 @@ TEMPLATE = r"""<!doctype html>
       <input type="number" id="fMinSqm" placeholder="τ.μ." style="width:70px">
     </label>
     <label><input type="checkbox" id="fOnlyNew"> Μόνο νέες</label>
+    <label><input type="checkbox" id="fHideMissing" checked> Απόκρυψη όσων λείπουν</label>
     <span class="muted" id="resultCount"></span>
   </div>
 </div>
@@ -300,12 +304,14 @@ function getFiltered() {
   const mp = parseInt(document.getElementById('fMaxPrice').value || '999999');
   const ms = parseInt(document.getElementById('fMinSqm').value || '0');
   const onlyNew = document.getElementById('fOnlyNew').checked;
+  const hideMissing = document.getElementById('fHideMissing').checked;
   return APARTMENTS.filter(a => {
     if (fn && a.neighborhood !== fn) return false;
     if (ft && !a.title.startsWith(ft)) return false;
     if (a.price_num > mp) return false;
     if (a.sqm < ms) return false;
     if (onlyNew && !a.is_new) return false;
+    if (hideMissing && a.is_missing) return false;
     return true;
   });
 }
@@ -319,10 +325,10 @@ function render() {
   document.getElementById('resultCount').textContent = `(${items.length} αποτελέσματα)`;
   const tbody = document.querySelector('#tbl tbody');
   tbody.innerHTML = items.map(a => `
-    <tr>
+    <tr class="${a.is_missing ? 'missing' : ''}">
       <td><button class="star ${FAVS.has(a.id) ? 'on' : ''}" data-id="${a.id}" title="Αγαπημένο">${FAVS.has(a.id) ? '★' : '☆'}</button></td>
       <td>${a.image ? `<img src="${a.image}" class="thumb" alt="">` : ''}</td>
-      <td>${a.title}${a.is_new ? '<span class="badge">🆕 ΝΕΟ</span>' : ''}${a.price_changed ? '<span class="badge drop">⬇️ ΑΛΛΑΓΗ ΤΙΜΗΣ</span>' : ''}<div class="age">${relAge(a.found_at)}</div></td>
+      <td>${a.title}${a.is_new ? '<span class="badge">🆕 ΝΕΟ</span>' : ''}${a.price_changed ? '<span class="badge drop">⬇️ ΑΛΛΑΓΗ ΤΙΜΗΣ</span>' : ''}${a.is_missing ? '<span class="badge miss">λείπει</span>' : ''}<div class="age">${relAge(a.found_at)}</div></td>
       <td class="price">${a.price}</td>
       <td>${a.sqm || '—'}</td>
       <td class="ppsqm">${a.ppsqm ? '€' + a.ppsqm : '—'}</td>
@@ -350,7 +356,7 @@ document.querySelectorAll('th[data-key]').forEach(th => {
   });
 });
 
-['fNeigh','fType','fMaxPrice','fMinSqm','fOnlyNew'].forEach(id => {
+['fNeigh','fType','fMaxPrice','fMinSqm','fOnlyNew','fHideMissing'].forEach(id => {
   document.getElementById(id).addEventListener('input', render);
 });
 
