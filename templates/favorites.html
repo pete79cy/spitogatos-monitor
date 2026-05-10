@@ -37,7 +37,7 @@
   .card .specs { color:var(--muted); font-size:12px; margin-top:4px; }
   .card .actions { display:flex; justify-content:space-between; align-items:center;
                    padding:8px 10px; border-top:1px solid var(--border); }
-  .card .actions a { color:var(--accent); text-decoration:none; font-size:13px; }
+  .card .actions a { color:var(--accent); text-decoration:none; font-size:13px; cursor:pointer; }
   .card .actions button { background:transparent; color:var(--warn); border:1px solid var(--warn);
                           border-radius:4px; padding:4px 8px; font-size:12px; cursor:pointer; }
   .card .actions button:hover { background:var(--warn); color:#000; }
@@ -98,6 +98,7 @@
         </div>
         <div class="actions">
           <a href="{{ f.link }}" target="_blank">↗ Σπιτογάτος</a>
+          <a class="transit" data-loc="{{ f.location }}" target="_blank" title="Συγκοινωνία προς Ιατρική Σχολή Βούτες">🚌 Βούτες</a>
           <button class="remove" data-id="{{ f.id }}">Αφαίρεση</button>
         </div>
       </div>
@@ -122,6 +123,14 @@
     for (const o of userSel.options) if (o.value === saved) { userSel.value = saved; break; }
   }
   userSel.addEventListener('change', () => localStorage.setItem('spitogatos_user', userSel.value));
+
+  // Build transit URLs from each card's location attr
+  const TRANSIT_DEST = 'Ιατρική Σχολή Πανεπιστημίου Κρήτης, Βούτες, Ηράκλειο';
+  function shortNeighborhood(loc) { return (loc || '').replace(/\s*\([^)]+\)\s*$/, '').trim(); }
+  document.querySelectorAll('a.transit').forEach(a => {
+    const loc = shortNeighborhood(a.dataset.loc) || 'Ηράκλειο Κρήτης';
+    a.href = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(loc + ', Ηράκλειο')}&destination=${encodeURIComponent(TRANSIT_DEST)}&travelmode=transit`;
+  });
 
   document.querySelectorAll('button.remove').forEach(btn => {
     btn.addEventListener('click', async () => {

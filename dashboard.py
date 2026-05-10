@@ -228,6 +228,13 @@ const APARTMENTS = __APARTMENTS_JSON__;
 const APT_BY_ID = Object.fromEntries(APARTMENTS.map(a => [a.id, a]));
 let FAVS = new Set();
 
+// Google Maps transit directions: neighborhood → Ιατρική Σχολή Βούτες
+const TRANSIT_DEST = 'Ιατρική Σχολή Πανεπιστημίου Κρήτης, Βούτες, Ηράκλειο';
+function transitUrl(neighborhood) {
+  const origin = (neighborhood && neighborhood.trim()) ? `${neighborhood}, Ηράκλειο` : 'Ηράκλειο Κρήτης';
+  return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(TRANSIT_DEST)}&travelmode=transit`;
+}
+
 function relAge(iso) {
   if (!iso) return '';
   const then = new Date(iso); if (isNaN(then)) return '';
@@ -335,7 +342,7 @@ function render() {
       <td>${a.neighborhood}</td>
       <td class="hide-mobile">${a.bedrooms}</td>
       <td class="hide-mobile">${a.floor}</td>
-      <td><a href="${a.link}" target="_blank">↗</a></td>
+      <td><a href="${a.link}" target="_blank" title="Σπιτογάτος">↗</a> <a href="${transitUrl(a.neighborhood)}" target="_blank" title="Συγκοινωνία προς Ιατρική Σχολή Βούτες">🚌</a></td>
     </tr>`).join('');
   // Wire up star buttons
   tbody.querySelectorAll('button.star').forEach(btn => {
