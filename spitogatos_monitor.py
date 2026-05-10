@@ -19,7 +19,9 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-URL = "https://www.spitogatos.gr/enoikiaseis-katoikies/heraclion-cretes/foititika/teleutaia_enimerwsi_24wres/prwti_dimosieusi_24wres"
+URL_DAILY = "https://www.spitogatos.gr/enoikiaseis-katoikies/heraclion-cretes/foititika/teleutaia_enimerwsi_24wres/prwti_dimosieusi_24wres"
+URL_BOOTSTRAP = "https://www.spitogatos.gr/enoikiaseis-katoikies/heraclion-cretes/foititika/prwti_dimosieusi_3meres"
+URL = URL_DAILY  # may be overridden by --bootstrap flag in main()
 HOME_URL = "https://www.spitogatos.gr/"
 DATA_DIR = Path(os.getenv("DATA_DIR", str(Path(__file__).parent)))
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -398,9 +400,15 @@ def send_email_notification(apartments):
 
 
 def main():
+    global URL
+    bootstrap = "--bootstrap" in sys.argv
+    if bootstrap:
+        URL = URL_BOOTSTRAP
+
     print(f"\n{'='*60}")
     print("🔍 Checking for new student apartments in Heraklion")
     print(f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"   Mode: {'BOOTSTRAP (last 3 days)' if bootstrap else 'daily (last 24h)'}")
     print(f"{'='*60}\n")
 
     data = load_seen_apartments()
