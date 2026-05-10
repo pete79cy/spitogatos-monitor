@@ -191,7 +191,7 @@ TEMPLATE = r"""<!doctype html>
       <input type="number" id="fMinSqm" placeholder="τ.μ." style="width:70px">
     </label>
     <label><input type="checkbox" id="fOnlyNew"> Μόνο νέες</label>
-    <label><input type="checkbox" id="fHideMissing" checked> Απόκρυψη όσων λείπουν</label>
+    <label><input type="checkbox" id="fHideMissing"> Απόκρυψη όσων λείπουν</label>
     <span class="muted" id="resultCount"></span>
   </div>
 </div>

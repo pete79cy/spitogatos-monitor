@@ -19,8 +19,8 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-URL_DAILY = "https://www.spitogatos.gr/enoikiaseis-katoikies/heraclion-cretes/foititika/teleutaia_enimerwsi_24wres/prwti_dimosieusi_24wres"
-URL_BOOTSTRAP = "https://www.spitogatos.gr/enoikiaseis-katoikies/heraclion-cretes/foititika/prwti_dimosieusi_3meres"
+URL_DAILY = "https://www.spitogatos.gr/enoikiaseis-katoikies/heraclion-cretes/foititika/prwti_dimosieusi_3meres"
+URL_BOOTSTRAP = URL_DAILY  # same URL — 3 days is spitogatos' max useful filter
 URL = URL_DAILY  # may be overridden by --bootstrap flag in main()
 HOME_URL = "https://www.spitogatos.gr/"
 DATA_DIR = Path(os.getenv("DATA_DIR", str(Path(__file__).parent)))
@@ -480,13 +480,23 @@ def main():
             print(f"   {pid}: {old} → {new}")
 
     # Build the list to render: every accumulated listing.
-    # Tag is_new (first seen today) and missing (not in this run's fetch).
+    # is_missing only fires when truly absent for 3+ days (avoids false positives
+    # right after a listing rolls out of the fetch window).
+    MISSING_DAYS_THRESHOLD = 3
     new_ids = {a["id"] for a in new_apartments}
     all_apartments = []
     for apt_id, stored in data["apartments"].items():
         a = dict(stored)
         a["is_new"] = apt_id in new_ids
-        a["is_missing"] = apt_id not in current_ids
+        ms = stored.get("missing_since")
+        if ms:
+            try:
+                age = (now - datetime.fromisoformat(ms)).days
+            except Exception:
+                age = 0
+            a["is_missing"] = age >= MISSING_DAYS_THRESHOLD
+        else:
+            a["is_missing"] = False
         all_apartments.append(a)
 
     try:
