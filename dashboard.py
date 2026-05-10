@@ -277,11 +277,6 @@ async function toggleFav(btn) {
   }
 }
 
-// History links
-document.getElementById('historyLinks').innerHTML =
-  HISTORY.map(f => `<a href="${f}">${f.replace('.html','')}</a>`).join(' · ') ||
-  '<span class="muted">καμία προηγούμενη μέρα</span>';
-
 // Populate filter options
 const neighborhoods = [...new Set(APARTMENTS.map(a => a.neighborhood).filter(Boolean))].sort();
 const types = [...new Set(APARTMENTS.map(a => (a.title.split(',')[0] || '').trim()).filter(Boolean))].sort();
