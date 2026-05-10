@@ -411,19 +411,61 @@ def main():
         print("⚠️  No apartments found.")
         return
 
-    new_apartments = [a for a in apartments if a["id"] not in seen_ids]
-    for apt in new_apartments:
-        data["apartments"][apt["id"]] = apt
+    now_iso = datetime.now().isoformat()
+    current_ids = {a["id"] for a in apartments}
 
-    # Mark current apartments as new/not-new for the dashboard
-    new_ids = {a["id"] for a in new_apartments}
+    # Drop stale listings (no longer on Spitogatos) — option (γ): purge when gone
+    stale_ids = set(data["apartments"].keys()) - current_ids
+    for sid in stale_ids:
+        data["apartments"].pop(sid, None)
+    if stale_ids:
+        print(f"🧹 Purged {len(stale_ids)} listings no longer on site")
+
+    # Merge: update existing, insert new, track price drops
+    new_apartments = []
+    price_drops = []
     for apt in apartments:
-        apt["is_new"] = apt["id"] in new_ids
+        apt_id = apt["id"]
+        existing = data["apartments"].get(apt_id)
+        if existing is None:
+            # First appearance
+            apt["last_seen"] = now_iso
+            apt["price_history"] = []
+            apt["price_changed"] = False
+            data["apartments"][apt_id] = apt
+            new_apartments.append(apt)
+        else:
+            old_price = existing.get("price", "")
+            new_price = apt.get("price", "")
+            if new_price and old_price and new_price != old_price:
+                existing.setdefault("price_history", []).append(
+                    {"price": old_price, "ts": existing.get("last_seen", "")}
+                )
+                existing["price_changed"] = True
+                price_drops.append((apt_id, old_price, new_price))
+            # Refresh fields (in case description/specs updated)
+            for k in ("title","price","location","size","description","floor",
+                     "bedrooms","bathrooms","image","link"):
+                if apt.get(k):
+                    existing[k] = apt[k]
+            existing["last_seen"] = now_iso
 
-    # Render dashboard (always, even if no new apts — gives a current snapshot)
+    if price_drops:
+        print(f"⬇️  Price changes detected: {len(price_drops)}")
+        for pid, old, new in price_drops:
+            print(f"   {pid}: {old} → {new}")
+
+    # Build the list to render: current items only, with metadata from data store
+    new_ids = {a["id"] for a in new_apartments}
+    current_apartments = []
+    for apt_id in current_ids:
+        a = dict(data["apartments"][apt_id])
+        a["is_new"] = apt_id in new_ids
+        current_apartments.append(a)
+
     try:
         from dashboard import render_dashboard
-        render_dashboard(apartments, WEB_DIR)
+        render_dashboard(current_apartments, WEB_DIR)
     except Exception as e:
         print(f"⚠️  Dashboard render failed: {e}")
 

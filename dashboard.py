@@ -56,6 +56,9 @@ def _enrich(apt: dict) -> dict:
         "image": apt.get("image", "") or "",
         "link": apt.get("link", "") or "",
         "is_new": bool(apt.get("is_new", False)),
+        "found_at": apt.get("found_at", "") or "",
+        "price_changed": bool(apt.get("price_changed", False)),
+        "price_history": apt.get("price_history", []) or [],
     }
 
 
@@ -77,11 +80,7 @@ def _summary(items):
     }
 
 
-def _history_links(web_dir: Path) -> list:
-    files = sorted(
-        [p.name for p in web_dir.glob("20??-??-??.html")], reverse=True
-    )
-    return files[:14]  # last 14 days
+# (daily snapshot links removed — single rolling view replaces them)
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -125,8 +124,10 @@ TEMPLATE = r"""<!doctype html>
   tbody tr:hover { background: rgba(255,255,255,0.03); }
   .thumb { width:60px; height:45px; object-fit:cover; border-radius:4px; }
   .badge { display:inline-block; padding:2px 6px; border-radius:4px;
-           background:var(--new); color:#0a0; color:#022c22; font-size:11px;
+           background:var(--new); color:#022c22; font-size:11px;
            font-weight:600; margin-left:4px; }
+  .badge.drop { background:#f59e0b; color:#3a2406; }
+  .age { color: var(--muted); font-size:11px; }
   .price { font-weight:600; }
   .ppsqm { color: var(--accent); font-weight:500; }
   .star { background:none; border:0; cursor:pointer; font-size:18px; padding:2px 6px;
@@ -218,16 +219,21 @@ TEMPLATE = r"""<!doctype html>
     <canvas id="cNeigh" height="180"></canvas></div>
 </div>
 
-<div class="panel history">
-  <strong>Ιστορικό:</strong>
-  <span id="historyLinks"></span>
-</div>
-
 <script>
 const APARTMENTS = __APARTMENTS_JSON__;
-const HISTORY = __HISTORY_JSON__;
 const APT_BY_ID = Object.fromEntries(APARTMENTS.map(a => [a.id, a]));
 let FAVS = new Set();
+
+function relAge(iso) {
+  if (!iso) return '';
+  const then = new Date(iso); if (isNaN(then)) return '';
+  const days = Math.floor((Date.now() - then.getTime()) / 86400000);
+  if (days <= 0) return 'σήμερα';
+  if (days === 1) return 'χθες';
+  if (days < 7) return `πριν ${days} μέρες`;
+  if (days < 30) return `πριν ${Math.floor(days/7)} εβδ.`;
+  return `πριν ${Math.floor(days/30)} μήνες`;
+}
 
 async function loadFavs() {
   try {
@@ -316,7 +322,7 @@ function render() {
     <tr>
       <td><button class="star ${FAVS.has(a.id) ? 'on' : ''}" data-id="${a.id}" title="Αγαπημένο">${FAVS.has(a.id) ? '★' : '☆'}</button></td>
       <td>${a.image ? `<img src="${a.image}" class="thumb" alt="">` : ''}</td>
-      <td>${a.title}${a.is_new ? '<span class="badge">ΝΕΟ</span>' : ''}</td>
+      <td>${a.title}${a.is_new ? '<span class="badge">🆕 ΝΕΟ</span>' : ''}${a.price_changed ? '<span class="badge drop">⬇️ ΑΛΛΑΓΗ ΤΙΜΗΣ</span>' : ''}<div class="age">${relAge(a.found_at)}</div></td>
       <td class="price">${a.price}</td>
       <td>${a.sqm || '—'}</td>
       <td class="ppsqm">${a.ppsqm ? '€' + a.ppsqm : '—'}</td>
@@ -400,7 +406,6 @@ def render_dashboard(apartments_raw: list, web_dir: str) -> str:
     enriched = [_enrich(a) for a in apartments_raw]
     summary = _summary(enriched)
     today = datetime.now().strftime("%Y-%m-%d")
-    history = _history_links(web)
     new_display = "block" if summary["new_count"] > 0 else "none"
 
     html = (
@@ -413,10 +418,9 @@ def render_dashboard(apartments_raw: list, web_dir: str) -> str:
         .replace("__NEW_COUNT__", str(summary["new_count"]))
         .replace("__NEW_DISPLAY__", new_display)
         .replace("__APARTMENTS_JSON__", json.dumps(enriched, ensure_ascii=False))
-        .replace("__HISTORY_JSON__", json.dumps(history, ensure_ascii=False))
     )
 
     (web / "index.html").write_text(html, encoding="utf-8")
-    (web / f"{today}.html").write_text(html, encoding="utf-8")
-    print(f"📄 Dashboard written: index.html, {today}.html ({summary['count']} listings)")
+    print(f"📄 Dashboard written: index.html ({summary['count']} listings, "
+          f"{summary['new_count']} new)")
     return "/index.html"
