@@ -1100,7 +1100,8 @@
       "found_at": "2026-06-02T08:42:14.990538",
       "last_seen": "2026-06-05T08:12:18.036050",
       "price_history": [],
-      "price_changed": false
+      "price_changed": false,
+      "missing_since": "2026-06-06T06:57:46.897102"
     },
     "2119980938": {
       "id": "2119980938",
@@ -1369,7 +1370,8 @@
       "found_at": "2026-06-02T08:42:15.003572",
       "last_seen": "2026-06-05T08:12:18.036050",
       "price_history": [],
-      "price_changed": false
+      "price_changed": false,
+      "missing_since": "2026-06-06T06:57:46.897102"
     },
     "2119986881": {
       "id": "2119986881",
@@ -1564,7 +1566,7 @@
       "image": "https://m1.spitogatos.gr/355086354_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2119993150",
       "found_at": "2026-06-03T09:00:09.956567",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -1583,7 +1585,8 @@
       "found_at": "2026-06-03T09:00:09.959530",
       "last_seen": "2026-06-05T08:12:18.036050",
       "price_history": [],
-      "price_changed": false
+      "price_changed": false,
+      "missing_since": "2026-06-06T06:57:46.897102"
     },
     "2116127503": {
       "id": "2116127503",
@@ -1618,7 +1621,8 @@
       "found_at": "2026-06-03T09:00:09.961500",
       "last_seen": "2026-06-05T08:12:18.036050",
       "price_history": [],
-      "price_changed": false
+      "price_changed": false,
+      "missing_since": "2026-06-06T06:57:46.897102"
     },
     "2119993362": {
       "id": "2119993362",
@@ -1635,7 +1639,8 @@
       "found_at": "2026-06-03T09:00:09.962479",
       "last_seen": "2026-06-05T08:12:18.036050",
       "price_history": [],
-      "price_changed": false
+      "price_changed": false,
+      "missing_since": "2026-06-06T06:57:46.897102"
     },
     "2119990530": {
       "id": "2119990530",
@@ -1652,7 +1657,8 @@
       "found_at": "2026-06-03T09:00:09.963461",
       "last_seen": "2026-06-05T08:12:18.036050",
       "price_history": [],
-      "price_changed": false
+      "price_changed": false,
+      "missing_since": "2026-06-06T06:57:46.897102"
     },
     "2119990092": {
       "id": "2119990092",
@@ -1685,7 +1691,7 @@
       "image": "https://m3.spitogatos.gr/175335794_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2114210250",
       "found_at": "2026-06-03T09:00:09.971638",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -1704,7 +1710,8 @@
       "found_at": "2026-06-03T09:00:09.972536",
       "last_seen": "2026-06-05T08:12:18.036050",
       "price_history": [],
-      "price_changed": false
+      "price_changed": false,
+      "missing_since": "2026-06-06T06:57:46.897102"
     },
     "2119991204": {
       "id": "2119991204",
@@ -1917,7 +1924,7 @@
       "image": "https://m3.spitogatos.gr/238112033_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2112668951",
       "found_at": "2026-06-04T08:24:35.127963",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -1934,7 +1941,7 @@
       "image": "https://m1.spitogatos.gr/350239173_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2119999227",
       "found_at": "2026-06-04T08:24:35.130189",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -1951,7 +1958,7 @@
       "image": "https://m3.spitogatos.gr/238112033_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2118488766",
       "found_at": "2026-06-04T08:24:35.135691",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -1970,7 +1977,8 @@
       "found_at": "2026-06-04T08:24:35.141877",
       "last_seen": "2026-06-05T08:12:18.036050",
       "price_history": [],
-      "price_changed": false
+      "price_changed": false,
+      "missing_since": "2026-06-06T06:57:46.897102"
     },
     "2119998533": {
       "id": "2119998533",
@@ -1985,7 +1993,7 @@
       "image": "https://m3.spitogatos.gr/177182477_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2119998533",
       "found_at": "2026-06-04T08:24:35.142887",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2002,7 +2010,7 @@
       "image": "https://m3.spitogatos.gr/238112033_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2113769898",
       "found_at": "2026-06-04T08:24:35.145938",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2019,7 +2027,7 @@
       "image": "https://m3.spitogatos.gr/175335794_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2117361985",
       "found_at": "2026-06-04T08:24:35.146961",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2036,10 +2044,9 @@
       "image": "https://m3.spitogatos.gr/302720561_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2114208707",
       "found_at": "2026-06-04T08:24:35.147970",
-      "last_seen": "2026-06-04T08:24:35.153404",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
-      "price_changed": false,
-      "missing_since": "2026-06-05T08:12:18.036050"
+      "price_changed": false
     },
     "2116001280": {
       "id": "2116001280",
@@ -2054,7 +2061,7 @@
       "image": "https://m3.spitogatos.gr/238112033_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2116001280",
       "found_at": "2026-06-04T08:24:35.149060",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2071,10 +2078,9 @@
       "image": "https://m3.spitogatos.gr/344146988_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2120002899",
       "found_at": "2026-06-04T08:24:35.152103",
-      "last_seen": "2026-06-04T08:24:35.153404",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
-      "price_changed": false,
-      "missing_since": "2026-06-05T08:12:18.036050"
+      "price_changed": false
     },
     "2120002718": {
       "id": "2120002718",
@@ -2107,7 +2113,7 @@
       "image": "https://m1.spitogatos.gr/296494482_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2120003416",
       "found_at": "2026-06-05T08:12:18.006715",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2121,10 +2127,10 @@
       "floor": "ΗΜ/ΥΠ",
       "bedrooms": "1 υ/δ",
       "bathrooms": "1 μπ",
-      "image": "https://m1.spitogatos.gr/355086354_100x50.jpg",
+      "image": "https://m2.spitogatos.gr/355613374_300x220.jpg?v=20130730",
       "link": "https://www.spitogatos.gr/aggelia/2120003043",
       "found_at": "2026-06-05T08:12:18.007798",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2141,7 +2147,7 @@
       "image": "https://m1.spitogatos.gr/296494482_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2120004468",
       "found_at": "2026-06-05T08:12:18.012233",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2158,7 +2164,7 @@
       "image": "",
       "link": "https://www.spitogatos.gr/aggelia/2119995093",
       "found_at": "2026-06-05T08:12:18.019710",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2175,7 +2181,7 @@
       "image": "https://m3.spitogatos.gr/334450172_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2120004348",
       "found_at": "2026-06-05T08:12:18.020692",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2192,7 +2198,7 @@
       "image": "https://m3.spitogatos.gr/334450172_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2120006616",
       "found_at": "2026-06-05T08:12:18.021673",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2209,7 +2215,7 @@
       "image": "https://m3.spitogatos.gr/334450172_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2120003524",
       "found_at": "2026-06-05T08:12:18.024707",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2226,7 +2232,7 @@
       "image": "https://m3.spitogatos.gr/238112033_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2120009817",
       "found_at": "2026-06-05T08:12:18.026837",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2243,7 +2249,7 @@
       "image": "https://m3.spitogatos.gr/175335794_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2116209780",
       "found_at": "2026-06-05T08:12:18.028832",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2262,7 +2268,8 @@
       "found_at": "2026-06-05T08:12:18.030769",
       "last_seen": "2026-06-05T08:12:18.036050",
       "price_history": [],
-      "price_changed": false
+      "price_changed": false,
+      "missing_since": "2026-06-06T06:57:46.897102"
     },
     "2120003217": {
       "id": "2120003217",
@@ -2277,7 +2284,7 @@
       "image": "https://m3.spitogatos.gr/206178743_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2120003217",
       "found_at": "2026-06-05T08:12:18.032838",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2294,7 +2301,7 @@
       "image": "https://m1.spitogatos.gr/355086354_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2120006382",
       "found_at": "2026-06-05T08:12:18.033820",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     },
@@ -2311,10 +2318,129 @@
       "image": "https://m1.spitogatos.gr/355086354_100x50.jpg",
       "link": "https://www.spitogatos.gr/aggelia/2120006300",
       "found_at": "2026-06-05T08:12:18.034827",
-      "last_seen": "2026-06-05T08:12:18.036050",
+      "last_seen": "2026-06-06T06:57:46.897102",
+      "price_history": [],
+      "price_changed": false
+    },
+    "2110611709": {
+      "id": "2110611709",
+      "title": "Διαμέρισμα, 85τ.μ.",
+      "price": "€500 / μήνα",
+      "location": "Δειλινά (Ηράκλειο Κρήτης)",
+      "size": "",
+      "description": "Eξαιρετικό διαμέρισμα 3άρι, άριστη κατάσταση, 85τμ, 1ου ορόφου, 2 υ/δ, 1 μπάνιο, ιδανικό για φοιτητές!\nτηλ 6951002607",
+      "floor": "1 ος",
+      "bedrooms": "2 υ/δ",
+      "bathrooms": "1 μπ",
+      "image": "https://m1.spitogatos.gr/355086354_100x50.jpg",
+      "link": "https://www.spitogatos.gr/aggelia/2110611709",
+      "found_at": "2026-06-06T06:57:46.868018",
+      "last_seen": "2026-06-06T06:57:46.897102",
+      "price_history": [],
+      "price_changed": false
+    },
+    "2120056224": {
+      "id": "2120056224",
+      "title": "Διαμέρισμα, 100τ.μ.",
+      "price": "€1.150 / μήνα",
+      "location": "Γιοφυράκια (Ηράκλειο Κρήτης)",
+      "size": "",
+      "description": "ΠΑΓΝΗ (Πριν το νοσοκομείο) Πολυτελές, ανακαινισμένο πρόσφατα, γωνιακό, διαμπερές, προσόψεως, μερικώς ηλεκτρικά εξοπλισμένο 4αρι διαμέρισμα πρώτου ορόφου, εμβαδού 100 τ.μ. με επιπλέον δύο ιδιωτικές θέσεις στάθμευσης. Αποτελείται από πολύ μεγάλο ενιαίο χώρο κουζίνα-σαλόνι-τραπεζαρία, 3 μεγάλα υπνοδ...",
+      "floor": "1 ος",
+      "bedrooms": "3 υ/δ",
+      "bathrooms": "1 μπ",
+      "image": "https://m2.spitogatos.gr/1101058_100x50.jpg",
+      "link": "https://www.spitogatos.gr/aggelia/2120056224",
+      "found_at": "2026-06-06T06:57:46.869227",
+      "last_seen": "2026-06-06T06:57:46.897102",
+      "price_history": [],
+      "price_changed": false
+    },
+    "2120011089": {
+      "id": "2120011089",
+      "title": "Διαμέρισμα, 45τ.μ.",
+      "price": "€550 / μήνα",
+      "location": "Καμίνια (Ηράκλειο Κρήτης)",
+      "size": "",
+      "description": "Διατίθεται προς ενοικίαση εξαιρετικό, πλήρως ανακαινισμένο (2026) διαμέρισμα 45 τ.μ., 1ου ορόφου, στην περιοχή των Καμινίων. Το ακίνητο βρίσκεται σε προνομιακή και ήσυχη τοποθεσία, σε απόσταση αναπνοής από το Talos Plaza, με άμεση πρόσβαση σε στάσεις λεωφορείων, σούπερ μάρκετ και καταστήματα εστί...",
+      "floor": "1 ος",
+      "bedrooms": "1 υ/δ",
+      "bathrooms": "1 μπ",
+      "image": "https://m1.spitogatos.gr/350239173_100x50.jpg",
+      "link": "https://www.spitogatos.gr/aggelia/2120011089",
+      "found_at": "2026-06-06T06:57:46.872487",
+      "last_seen": "2026-06-06T06:57:46.897102",
+      "price_history": [],
+      "price_changed": false
+    },
+    "2120023252": {
+      "id": "2120023252",
+      "title": "Διαμέρισμα, 40τ.μ.",
+      "price": "€550 / μήνα",
+      "location": "Βιομηχανική Περιοχή Φοινικιά (Ηράκλειο Κρήτης)",
+      "size": "",
+      "description": "Ενοικιάζεται Μοντέρνο Διαμέρισμα 40 τ.μ. στις Γούρνες – Περιοχή Αγίου Ιωάννη Χωστού\n\nΑνακαλύψτε έναν όμορφο και προσεγμένο χώρο που συνδυάζει την ηρεμία της φύσης με την άνεση της πόλης.\n\nΤο διαμέρισμα είναι 40 τ.μ., ισόγειο, σύγχρονης αισθητικής και πλήρως εξοπλισμένο με ηλεκτρικές συσκευές. Δια...",
+      "floor": "ΙΣ",
+      "bedrooms": "1 υ/δ",
+      "bathrooms": "1 μπ",
+      "image": "https://m3.spitogatos.gr/328657334_100x50.jpg",
+      "link": "https://www.spitogatos.gr/aggelia/2120023252",
+      "found_at": "2026-06-06T06:57:46.881944",
+      "last_seen": "2026-06-06T06:57:46.897102",
+      "price_history": [],
+      "price_changed": false
+    },
+    "2120029419": {
+      "id": "2120029419",
+      "title": "Διαμέρισμα, 52τ.μ.",
+      "price": "€550 / μήνα",
+      "location": "Δειλινά (Ηράκλειο Κρήτης)",
+      "size": "",
+      "description": "Διατίθεται προς ενοικίαση ανακαινισμένο διαμέρισμα 1ου ορόφου, συνολικής επιφάνειας 45 τ.μ., στην περιοχή Ηράκλειο Κρήτης – Καμίνια.\n\nΤο ακίνητο αποτελείται από ένα υπνοδωμάτιο, ένα μπάνιο, μία κουζίνα και ένα άνετο σαλόνι, προσφέροντας λειτουργικούς και σύγχρονους χώρους διαβίωσης.\n\nΔιαθέτει αυτ...",
+      "floor": "1 ος",
+      "bedrooms": "1 υ/δ",
+      "bathrooms": "1 μπ",
+      "image": "https://m3.spitogatos.gr/306110333_100x50.jpg",
+      "link": "https://www.spitogatos.gr/aggelia/2120029419",
+      "found_at": "2026-06-06T06:57:46.888023",
+      "last_seen": "2026-06-06T06:57:46.897102",
+      "price_history": [],
+      "price_changed": false
+    },
+    "2120007753": {
+      "id": "2120007753",
+      "title": "Διαμέρισμα, 46τ.μ.",
+      "price": "€720 / μήνα",
+      "location": "Κέντρο - Βαλιδέ Τζαμί (Ηράκλειο Κρήτης)",
+      "size": "",
+      "description": "Ενοικιάζεται 2άρι 46 τ.μ., επιπλωμένο και ηλεκτρικά εξοπλισμένο κέντρο του Ηρακλείου Κρήτης.\nΤο διαμέρισμα είναι πλήρως ανακαινισμένο το 2026, βρίσκεται στον 1o όροφο και είναι προσόψεως.\nΑποτελείται από 1 υπνοδωμάτιο,1 ενιαίο σαλόνι-κουζίνα, 1 μπάνιο, 1 αποθήκη και 1 εσωτερική αυλή.\nΗ θέρμανση τ...",
+      "floor": "1 ος",
+      "bedrooms": "1 υ/δ",
+      "bathrooms": "1 μπ",
+      "image": "https://m1.spitogatos.gr/316815825_100x50.jpg",
+      "link": "https://www.spitogatos.gr/aggelia/2120007753",
+      "found_at": "2026-06-06T06:57:46.892985",
+      "last_seen": "2026-06-06T06:57:46.897102",
+      "price_history": [],
+      "price_changed": false
+    },
+    "2112889860": {
+      "id": "2112889860",
+      "title": "Studio / Γκαρσονιέρα, 32τ.μ.",
+      "price": "€500 / μήνα",
+      "location": "Καμίνια (Ηράκλειο Κρήτης)",
+      "size": "",
+      "description": "Ηράκλειο Κρήτης, Καμίνια, δίπλα στην Λεωφόρο 62 Μαρτύρων: 2ης ενοικίασης νεόδμητη Γκαρσονιέρα 32τ.μ. πολυτελούς κατασκευής στον 2ο όροφο. Αποτελείται από 1 υπνοδωμάτιο, 1 σαλονοκουζίνα, μπαλκόνι και μπάνιο. Είναι κατασκευασμένη το 2021, βαμμένη και διαθέτει κουφώματα αλουμινίου με διπλά τζάμια, π...",
+      "floor": "2 ος",
+      "bedrooms": "1 υ/δ",
+      "bathrooms": "1 μπ",
+      "image": "https://m3.spitogatos.gr/175335794_100x50.jpg",
+      "link": "https://www.spitogatos.gr/aggelia/2112889860",
+      "found_at": "2026-06-06T06:57:46.896943",
+      "last_seen": "2026-06-06T06:57:46.897102",
       "price_history": [],
       "price_changed": false
     }
   },
-  "last_check": "2026-06-05T08:12:18.040486"
+  "last_check": "2026-06-06T06:57:46.901529"
 }
